@@ -51,6 +51,7 @@ export const loginSchema = z.object({
     password: z.string().min(6, 'Password must be at least 6 characters'),
 })
 
+// Frontend registration schema (with confirmPassword)
 export const registerSchema = z.object({
     name: z.string().min(1, 'Name is required').max(100),
     email: z.string().email('Invalid email address'),
@@ -59,6 +60,13 @@ export const registerSchema = z.object({
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ['confirmPassword'],
+})
+
+// Backend user creation schema (without confirmPassword)
+export const createUserSchema = z.object({
+    name: z.string().min(1, 'Name is required').max(100),
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
 })
 
 // Export types
@@ -72,3 +80,5 @@ export type UserPreferencesInput = z.infer<typeof userPreferencesSchema>
 export type NotificationInput = z.infer<typeof notificationSchema>
 export type LoginInput = z.infer<typeof loginSchema>
 export type RegisterInput = z.infer<typeof registerSchema>
+export type CreateUserInput = z.infer<typeof createUserSchema>
+
