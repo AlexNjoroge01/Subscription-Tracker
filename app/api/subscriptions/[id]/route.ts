@@ -7,14 +7,15 @@ import { error, success, unauthorized, notFound, validationError } from '@/lib/a
 // GET /api/subscriptions/[id] - Get single subscription
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const user = await requireAuth()
+        const { id } = await params
 
         const subscription = await prisma.subscription.findFirst({
             where: {
-                id: params.id,
+                id,
                 userId: user.id,
             },
             include: {
@@ -39,16 +40,17 @@ export async function GET(
 // PATCH /api/subscriptions/[id] - Update subscription
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const user = await requireAuth()
+        const { id } = await params
         const body = await request.json()
 
         // Check if subscription exists and belongs to user
         const existing = await prisma.subscription.findFirst({
             where: {
-                id: params.id,
+                id,
                 userId: user.id,
             },
         })
@@ -67,7 +69,7 @@ export async function PATCH(
 
         // Update subscription
         const subscription = await prisma.subscription.update({
-            where: { id: params.id },
+            where: { id },
             data,
             include: {
                 category: true,
@@ -87,15 +89,16 @@ export async function PATCH(
 // DELETE /api/subscriptions/[id] - Delete subscription
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const user = await requireAuth()
+        const { id } = await params
 
         // Check if subscription exists and belongs to user
         const existing = await prisma.subscription.findFirst({
             where: {
-                id: params.id,
+                id,
                 userId: user.id,
             },
         })
@@ -106,7 +109,7 @@ export async function DELETE(
 
         // Delete subscription (notifications will cascade delete)
         await prisma.subscription.delete({
-            where: { id: params.id },
+            where: { id },
         })
 
         return success({ message: 'Subscription deleted successfully' })

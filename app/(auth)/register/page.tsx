@@ -11,7 +11,7 @@ import { registerSchema, type RegisterInput } from '@/schemas'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { ArrowRight, Lock, Mail, User, Zap, Loader2 } from 'lucide-react'
 
 export default function RegisterPage() {
     const router = useRouter()
@@ -69,84 +69,153 @@ export default function RegisterPage() {
     }
 
     return (
-        <Card>
-            <CardHeader className="space-y-1">
-                <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-                <CardDescription>
-                    Enter your information to get started
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="name">Name</Label>
-                        <Input
-                            id="name"
-                            type="text"
-                            placeholder="John Doe"
-                            {...register('name')}
-                            disabled={isLoading}
-                        />
-                        {errors.name && (
-                            <p className="text-sm text-red-500">{errors.name.message}</p>
-                        )}
-                    </div>
+        <div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center p-6 selection:bg-emerald-100">
+            {/* Background Decorative Blobs - Matches Login Page */}
+            <div className="fixed top-[-10%] right-[-10%] w-[500px] h-[500px] bg-emerald-200/30 rounded-full blur-[120px] -z-10" />
+            <div className="fixed bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-100/30 rounded-full blur-[120px] -z-10" />
 
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            placeholder="name@example.com"
-                            {...register('email')}
-                            disabled={isLoading}
-                        />
-                        {errors.email && (
-                            <p className="text-sm text-red-500">{errors.email.message}</p>
-                        )}
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input
-                            id="password"
-                            type="password"
-                            placeholder="••••••••"
-                            {...register('password')}
-                            disabled={isLoading}
-                        />
-                        {errors.password && (
-                            <p className="text-sm text-red-500">{errors.password.message}</p>
-                        )}
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="confirmPassword">Confirm Password</Label>
-                        <Input
-                            id="confirmPassword"
-                            type="password"
-                            placeholder="••••••••"
-                            {...register('confirmPassword')}
-                            disabled={isLoading}
-                        />
-                        {errors.confirmPassword && (
-                            <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
-                        )}
-                    </div>
-
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading ? 'Creating account...' : 'Create account'}
-                    </Button>
-                </form>
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-4">
-                <div className="text-sm text-center text-muted-foreground">
-                    Already have an account?{' '}
-                    <Link href="/login" className="text-primary hover:underline">
-                        Sign in
+            <div className="w-full max-w-[600px] space-y-8">
+                {/* Brand Logo */}
+                <div className="flex flex-col items-center gap-4">
+                    <Link href="/" className="flex items-center gap-2 font-bold text-2xl tracking-tighter">
+                        <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white italic shadow-lg shadow-emerald-500/20">
+                            Z
+                        </div>
+                        ZENITH
                     </Link>
+                    <div className="text-center space-y-2">
+                        <h1 className="text-3xl font-black tracking-tight text-slate-900">
+                            Create Account
+                        </h1>
+                        <p className="text-slate-500 font-medium">
+                            Join the inner circle and master capital.
+                        </p>
+                    </div>
                 </div>
-            </CardFooter>
-        </Card>
+
+                {/* Register Card Shell */}
+                <div className="bg-white border border-slate-200/60 rounded-[32px] shadow-2xl shadow-slate-200/50 p-8 backdrop-blur-xl">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                        <div className="space-y-4">
+                            {/* Name Field */}
+                            <div className="space-y-2">
+                                <Label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">
+                                    Full Name
+                                </Label>
+                                <div className="relative">
+                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Input
+                                        id="name"
+                                        type="text"
+                                        placeholder="Alex Maina"
+                                        {...register('name')}
+                                        disabled={isLoading}
+                                        className="pl-11 h-12 rounded-2xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all"
+                                    />
+                                </div>
+                                {errors.name && (
+                                    <p className="text-xs font-medium text-red-500 ml-1">{errors.name.message}</p>
+                                )}
+                            </div>
+
+                            {/* Email Field */}
+                            <div className="space-y-2">
+                                <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">
+                                    Email Address
+                                </Label>
+                                <div className="relative">
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        placeholder="alex@example.com"
+                                        {...register('email')}
+                                        disabled={isLoading}
+                                        className="pl-11 h-12 rounded-2xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all"
+                                    />
+                                </div>
+                                {errors.email && (
+                                    <p className="text-xs font-medium text-red-500 ml-1">{errors.email.message}</p>
+                                )}
+                            </div>
+
+                            {/* Password Field */}
+                            <div className="space-y-2">
+                                <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">
+                                    Create Password
+                                </Label>
+                                <div className="relative">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        placeholder="••••••••"
+                                        {...register('password')}
+                                        disabled={isLoading}
+                                        className="pl-11 h-12 rounded-2xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all"
+                                    />
+                                </div>
+                                {errors.password && (
+                                    <p className="text-xs font-medium text-red-500 ml-1">{errors.password.message}</p>
+                                )}
+                            </div>
+
+                            {/* Confirm Password Field */}
+                            <div className="space-y-2">
+                                <Label htmlFor="confirmPassword" className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">
+                                    Confirm Password
+                                </Label>
+                                <div className="relative">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Input
+                                        id="confirmPassword"
+                                        type="password"
+                                        placeholder="••••••••"
+                                        {...register('confirmPassword')}
+                                        disabled={isLoading}
+                                        className="pl-11 h-12 rounded-2xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all"
+                                    />
+                                </div>
+                                {errors.confirmPassword && (
+                                    <p className="text-xs font-medium text-red-500 ml-1">{errors.confirmPassword.message}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <Button 
+                            type="submit" 
+                            className="w-full h-12 bg-slate-900 hover:bg-emerald-600 text-white font-bold rounded-2xl transition-all shadow-xl shadow-slate-900/10 group" 
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : (
+                                <span className="flex items-center gap-2">
+                                    Create Account <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </span>
+                            )}
+                        </Button>
+                    </form>
+
+                    {/* Footer Links */}
+                    <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col items-center gap-4">
+                        <p className="text-sm font-medium text-slate-500">
+                            Already in the circle?{' '}
+                            <Link href="/login" className="text-emerald-600 font-bold hover:underline">
+                                Sign In
+                            </Link>
+                        </p>
+                    </div>
+                </div>
+
+                {/* Secure Badge */}
+                <div className="flex items-center justify-center gap-2 text-slate-400">
+                    <Zap className="w-3 h-3 fill-slate-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
+                        End-to-End Encryption Secured
+                    </span>
+                </div>
+            </div>
+        </div>
     )
 }
