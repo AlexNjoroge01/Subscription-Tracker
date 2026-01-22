@@ -13,7 +13,7 @@ const EntryPage = () => {
       <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
         <div className="flex items-center gap-2 font-bold text-xl tracking-tighter">
           <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white italic shadow-lg shadow-emerald-500/20">Z</div>
-          Track My Subs
+          MySubMonitor.com
         </div>
         <div className="flex items-center gap-6 text-sm font-medium text-slate-500">
           <button className="hover:text-emerald-600 transition-colors">How it works</button>
@@ -227,7 +227,7 @@ const EntryPage = () => {
         {/* BEFORE & AFTER COMPARISON */}
         <section className="py-24 border-b border-slate-100">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-black mb-4">Life Before vs. After Track My Subs</h2>
+            <h2 className="text-4xl font-black mb-4">Life Before vs. After MySubMonitor.com</h2>
             <p className="text-slate-500 max-w-2xl mx-auto">Experience the tangible impact of intelligent subscription management.</p>
           </div>
           <div className="grid md:grid-cols-2 gap-12">
@@ -235,7 +235,7 @@ const EntryPage = () => {
             <div className="p-10 bg-gradient-to-br from-red-50 to-red-100 rounded-3xl shadow-lg border border-red-200">
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-16 h-16 rounded-full bg-red-600 text-white flex items-center justify-center text-3xl font-bold">🚫</div>
-                <h3 className="text-3xl font-bold text-red-800">Before Track My Subs</h3>
+                <h3 className="text-3xl font-bold text-red-800">Before MySubMonitor.com</h3>
               </div>
               <ul className="space-y-6 text-red-700 text-lg">
                 <li className="flex items-start gap-3">
@@ -260,7 +260,7 @@ const EntryPage = () => {
             <div className="p-10 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-3xl shadow-lg border border-emerald-200">
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-16 h-16 rounded-full bg-emerald-600 text-white flex items-center justify-center text-3xl font-bold">✅</div>
-                <h3 className="text-3xl font-bold text-emerald-800">After Track My Subs</h3>
+                <h3 className="text-3xl font-bold text-emerald-800">After MySubMonitor.com</h3>
               </div>
               <ul className="space-y-6 text-emerald-700 text-lg">
                 <li className="flex items-start gap-3">
@@ -386,7 +386,7 @@ const EntryPage = () => {
                 {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />)}
               </div>
               <p className="text-slate-700 italic flex-grow">
-                "Track My Subs literally saved me from paying for three streaming services I barely used! The dormant burn detection is a game-changer. My monthly spending has never been clearer."
+                "MySubMonitor.com literally saved me from paying for three streaming services I barely used! The dormant burn detection is a game-changer. My monthly spending has never been clearer."
               </p>
               <div className="mt-6 pt-6 border-t border-slate-200">
                 <p className="font-bold text-slate-900">Mercy Wanjiku</p>
@@ -399,7 +399,7 @@ const EntryPage = () => {
                 {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />)}
               </div>
               <p className="text-slate-700 italic flex-grow">
-                "As a freelancer, keeping track of my software subscriptions was a nightmare. Track My Subs gives me a complete overview and the notifications are spot on. Highly recommended!"
+                "As a freelancer, keeping track of my software subscriptions was a nightmare. MySubMonitor.com gives me a complete overview and the notifications are spot on. Highly recommended!"
               </p>
               <div className="mt-6 pt-6 border-t border-slate-200">
                 <p className="font-bold text-slate-900">David Ochieng</p>
@@ -412,7 +412,7 @@ const EntryPage = () => {
                 {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />)}
               </div>
               <p className="text-slate-700 italic flex-grow">
-                "The family sharing tracking is brilliant. I finally know exactly who's using what and where our money is going. Track My Subs brought sanity back to our household budget."
+                "The family sharing tracking is brilliant. I finally know exactly who's using what and where our money is going. MySubMonitor.com brought sanity back to our household budget."
               </p>
               <div className="mt-6 pt-6 border-t border-slate-200">
                 <p className="font-bold text-slate-900">Fatima Hassan</p>
@@ -430,7 +430,7 @@ const EntryPage = () => {
           <div className="col-span-1 space-y-4">
             <div className="flex items-center gap-2 font-bold text-xl tracking-tighter">
               <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white italic">Z</div>
-              Track My Subs
+              MySubMonitor.com
             </div>
             <p className="text-slate-400 text-sm">Master your capital flow, effortlessly.</p>
             <div className="flex gap-4 mt-4">
@@ -470,7 +470,7 @@ const EntryPage = () => {
         </div>
 
         <div className="text-center mt-16 text-slate-500 text-sm border-t border-slate-700 pt-8">
-          &copy; {new Date().getFullYear()} Track My Subs. All rights reserved. Made with ❤️ in Kenya.
+          &copy; {new Date().getFullYear()} MySubMonitor.com. All rights reserved. Made with ❤️ in Kenya.
         </div>
       </footer>
     </div>

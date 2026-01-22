@@ -39,7 +39,7 @@ export default function LoginPage() {
                 return
             }
 
-            toast.success('Access Granted. Welcome to Zenith.')
+            toast.success('Access Granted. Welcome to MySubMonitor.com.')
             router.push('/dashboard')
             router.refresh()
         } catch (error) {
@@ -62,7 +62,7 @@ export default function LoginPage() {
                         <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white italic shadow-lg shadow-emerald-500/20">
                             Z
                         </div>
-                        ZENITH
+                        MySubMonitor.com
                     </Link>
                     <div className="text-center space-y-2">
                         <h1 className="text-3xl font-black tracking-tight text-slate-900">
