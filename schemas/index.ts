@@ -7,7 +7,8 @@ export const subscriptionSchema = z.object({
     currency: z.string().default('KES'),
     billingCycle: z.enum(['monthly', 'annual', 'custom']),
     customDays: z.number().int().positive().optional(),
-    nextBillingDate: z.date(),
+    // Accept both Date objects and ISO date strings from the client
+    nextBillingDate: z.coerce.date(),
     status: z.enum(['active', 'cancelled', 'overdue', 'scheduled']).default('active'),
     categoryId: z.string().optional(),
     familyMember: z.string().max(50).optional(),
