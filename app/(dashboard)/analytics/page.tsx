@@ -92,27 +92,25 @@ export default function AnalyticsPage() {
           </p>
         </section>
 
-        {/* Metrics row */}
+        {/* Metrics row – alternating */}
         <section className="grid md:grid-cols-4 gap-4">
           <Card className="bg-white border-slate-100 p-4 flex flex-col gap-2 rounded-2xl shadow-sm">
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
               Monthly Total
             </p>
-            <p className="text-xl font-black">
+            <p className="text-xl font-black text-slate-900">
               {overview
-                ? `KES ${overview.monthlyTotal.toLocaleString(undefined, {
-                    maximumFractionDigits: 0,
-                  })}`
+                ? `KES ${overview.monthlyTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
                 : '—'}
             </p>
             <p className="text-[11px] text-slate-400">Active burn this month</p>
           </Card>
 
-          <Card className="bg-white border-slate-100 p-4 flex flex-col gap-2 rounded-2xl shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <Card className="bg-slate-900 border-slate-800 p-4 flex flex-col gap-2 rounded-2xl shadow-sm text-white">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">
               Active Subs
             </p>
-            <p className="text-xl font-black">
+            <p className="text-xl font-black text-white">
               {overview ? overview.activeCount : '—'}
             </p>
             <p className="text-[11px] text-slate-400">Tracked recurring services</p>
@@ -122,32 +120,28 @@ export default function AnalyticsPage() {
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
               Avg Cost / Sub
             </p>
-            <p className="text-xl font-black">
+            <p className="text-xl font-black text-slate-900">
               {overview
-                ? `KES ${overview.avgPerSub.toLocaleString(undefined, {
-                    maximumFractionDigits: 0,
-                  })}`
+                ? `KES ${overview.avgPerSub.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
                 : '—'}
             </p>
             <p className="text-[11px] text-slate-400">Normalised monthly run-rate</p>
           </Card>
 
-          <Card className="bg-white border-slate-100 p-4 flex flex-col gap-2 rounded-2xl shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <Card className="bg-slate-900 border-slate-800 p-4 flex flex-col gap-2 rounded-2xl shadow-sm text-white">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">
               Yearly Projection
             </p>
-            <p className="text-xl font-black">
+            <p className="text-xl font-black text-white">
               {overview
-                ? `KES ${overview.yearlyProjection.toLocaleString(undefined, {
-                    maximumFractionDigits: 0,
-                  })}`
+                ? `KES ${overview.yearlyProjection.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
                 : '—'}
             </p>
             <p className="text-[11px] text-slate-400">If nothing changes</p>
           </Card>
         </section>
 
-        {/* Charts row */}
+        {/* Charts row – left white, right dark */}
         <section className="grid lg:grid-cols-2 gap-6">
           {/* Spending trend */}
           <Card className="bg-white border-slate-100 p-6 rounded-[28px] shadow-sm flex flex-col gap-4">
@@ -209,19 +203,19 @@ export default function AnalyticsPage() {
             </div>
           </Card>
 
-          {/* Category breakdown */}
-          <Card className="bg-white border-slate-100 p-6 rounded-[28px] shadow-sm flex flex-col gap-4">
+          {/* Category breakdown – dark version */}
+          <Card className="bg-slate-900 border-slate-800 p-6 rounded-[28px] shadow-sm flex flex-col gap-4 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">
                   Category Breakdown
                 </p>
-                <p className="text-sm text-slate-500 font-light">
+                <p className="text-sm text-slate-400 font-light">
                   Where your monthly burn is concentrated.
                 </p>
               </div>
-              <div className="p-2 rounded-xl bg-sky-50">
-                <PieChartIcon className="w-4 h-4 text-sky-600" />
+              <div className="p-2 rounded-xl bg-sky-950/60">
+                <PieChartIcon className="w-4 h-4 text-sky-400" />
               </div>
             </div>
             <div className="flex flex-col md:flex-row md:items-center gap-4">
@@ -272,7 +266,7 @@ export default function AnalyticsPage() {
                 {categories.slice(0, 5).map((cat, index) => (
                   <div
                     key={cat.name}
-                    className="flex items-center justify-between text-xs text-slate-600"
+                    className="flex items-center justify-between text-xs text-slate-300"
                   >
                     <div className="flex items-center gap-2">
                       <span
@@ -283,7 +277,7 @@ export default function AnalyticsPage() {
                       />
                       <span className="font-medium">{cat.name}</span>
                     </div>
-                    <span className="font-semibold text-slate-900">
+                    <span className="font-semibold text-white">
                       KES {cat.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </span>
                   </div>
@@ -293,7 +287,7 @@ export default function AnalyticsPage() {
           </Card>
         </section>
 
-        {/* Simple insights */}
+        {/* Quick Insights – alternating */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
@@ -316,16 +310,18 @@ export default function AnalyticsPage() {
                   : 'Once you add a few subscriptions, we will highlight your highest-cost lane here.'}
               </p>
             </Card>
-            <Card className="bg-white border-slate-100 p-4 rounded-2xl shadow-sm">
-              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">
+
+            <Card className="bg-slate-900 border-slate-800 p-4 rounded-2xl shadow-sm text-white">
+              <p className="text-[11px] font-semibold text-slate-300 uppercase tracking-widest">
                 Runway
               </p>
-              <p className="mt-1 text-sm text-slate-700">
+              <p className="mt-1 text-sm text-slate-300">
                 {overview
                   ? `At the current burn, you will deploy approximately KES ${overview.yearlyProjection.toLocaleString(undefined, { maximumFractionDigits: 0 })} over the next 12 months.`
                   : 'Yearly projection will appear once we detect a stable monthly pattern.'}
               </p>
             </Card>
+
             <Card className="bg-white border-slate-100 p-4 rounded-2xl shadow-sm">
               <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest">
                 Unit Cost
@@ -342,4 +338,3 @@ export default function AnalyticsPage() {
     </div>
   )
 }
-
