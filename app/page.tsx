@@ -49,10 +49,12 @@ const EntryPage = () => {
             </p>
 
             <div className="flex items-center gap-4">
-              <button className="group px-8 py-4 bg-emerald-600 text-white font-bold rounded-2xl flex items-center gap-3 hover:bg-emerald-700 transition-all hover:translate-y-[-1px] shadow-xl shadow-emerald-600/20">
-                Secure Your Dashboard
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+              <Link href="/dashboard">
+  <button className="group px-8 py-4 bg-emerald-600 text-white font-bold rounded-2xl flex items-center gap-3 hover:bg-emerald-700 transition-all hover:translate-y-[-1px] shadow-xl shadow-emerald-600/20">
+    Secure Your Dashboard
+    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+  </button>
+</Link>
               <div className="text-sm font-medium text-slate-400">
                 100% Secure <br /> Data Encryption
               </div>
