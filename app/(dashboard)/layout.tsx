@@ -8,6 +8,7 @@ import {
   CreditCard,
   FolderKanban,
   BarChart3,
+  Settings,
 } from 'lucide-react'
 
 function SidebarLink({
@@ -25,11 +26,10 @@ function SidebarLink({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 rounded-xl px-3 py-3 text-base font-medium transition-colors ${
-        active
+      className={`flex items-center gap-3 rounded-xl px-3 py-3 text-base font-medium transition-colors ${active
           ? 'bg-slate-900 text-white shadow-sm'
           : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
-      }`}
+        }`}
     >
       <Icon className={`w-5 h-5 ${active ? 'text-emerald-400' : 'text-slate-400'}`} />
       <span>{label}</span>
@@ -65,9 +65,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <SidebarLink href="/categories" label="Categories" icon={FolderKanban} />
           <SidebarLink href="/notifications" label="Notifications" icon={FolderKanban} />
           <SidebarLink href="/analytics" label="Analytics" icon={BarChart3} />
+          <SidebarLink href="/settings" label="Settings" icon={Settings} />
         </nav>
 
-        
+
       </aside>
 
       {/* Main area */}
