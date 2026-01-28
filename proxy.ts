@@ -13,5 +13,8 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/subscriptions/:path*',
+    '/categories/:path*',
+    '/notifications/:path*',
+    '/analytics/:path*',
   ],
 }
