@@ -250,7 +250,7 @@
 - [ ] Create budget limit warnings
 
 ### Step 7.2: Email Notifications (using resend emails)
-- [ ] Setup email service (Resend, SendGrid, etc.)
+- [ ] Setup email service (Resend)
 - [ ] Daily digest email template
 - [ ] Renewal reminder email template
 - [ ] Send emails based on user preferences
@@ -258,7 +258,7 @@
 ### Step 7.3: Notification Preferences
 - [ ] Settings page for notification preferences
 - [ ] Toggle email notifications
-- [ ] Choose alert timing (7/3/1 days before)
+- [ ] Choose alert timing (7/3/1 days before) make sure this is implemented
 
 ---
 

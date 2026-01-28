@@ -20,6 +20,16 @@ model User {
   image         String?
   currency      String         @default("KES")
   monthlyBudget Float?
+  
+  // Notification preferences
+  emailNotificationsEnabled Boolean @default(true)
+  notifySevenDays          Boolean @default(true)
+  notifyThreeDays          Boolean @default(true)
+  notifyOneDay             Boolean @default(true)
+  notifyOverdue            Boolean @default(true)
+  notifyBudgetWarning      Boolean @default(true)
+  dailyDigestEnabled       Boolean @default(false)
+  
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   
