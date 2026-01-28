@@ -226,7 +226,6 @@
 **Goal**: Help users save money
 
 ### Step 6.1: Potential Savings Detection
-- [ ] Algorithm to detect duplicate categories (multiple streaming, cloud storage, etc.)
 - [ ] Calculate potential savings
 - [ ] "Potential Savings Detected" banner with total yearly savings
 
@@ -250,7 +249,7 @@
 - [ ] Create overdue notifications
 - [ ] Create budget limit warnings
 
-### Step 7.2: Email Notifications (Optional for MVP)
+### Step 7.2: Email Notifications (using resend emails)
 - [ ] Setup email service (Resend, SendGrid, etc.)
 - [ ] Daily digest email template
 - [ ] Renewal reminder email template
@@ -259,7 +258,6 @@
 ### Step 7.3: Notification Preferences
 - [ ] Settings page for notification preferences
 - [ ] Toggle email notifications
-- [ ] Toggle push notifications (if implementing)
 - [ ] Choose alert timing (7/3/1 days before)
 
 ---

@@ -78,10 +78,10 @@ export default function RegisterPage() {
                 {/* Brand Logo */}
                 <div className="flex flex-col items-center gap-4">
                     <Link href="/" className="flex items-center gap-2 font-bold text-2xl tracking-tighter">
-                        <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white italic shadow-lg shadow-emerald-500/20">
-                            Z
+                        <div className="w-14 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white italic shadow-lg shadow-emerald-500/20">
+                            MSM
                         </div>
-                        ZENITH
+                        MySubscriptionMonitor
                     </Link>
                     <div className="text-center space-y-2">
                         <h1 className="text-3xl font-black tracking-tight text-slate-900">

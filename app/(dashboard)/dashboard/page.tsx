@@ -179,14 +179,14 @@ export default function DashboardPage() {
             </div>
           </Card>
 
-          <Card className="bg-white border-slate-100 p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
-            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <Card className="bg-slate-900 border-slate-800 p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow rounded-2xl text-white">
+            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-300">
               <span>Active Assets</span>
-              <div className="p-1.5 bg-blue-50 rounded-lg">
-                <CreditCard className="w-4 h-4 text-blue-600" />
+              <div className="p-1.5 bg-blue-900/40 rounded-lg">
+                <CreditCard className="w-4 h-4 text-blue-400" />
               </div>
             </div>
-            <p className="text-2xl font-black text-slate-900">{activeCount}</p>
+            <p className="text-2xl font-black text-white">{activeCount}</p>
             <p className="text-[11px] font-medium text-slate-400">Recurring Services</p>
           </Card>
 
@@ -203,14 +203,14 @@ export default function DashboardPage() {
             <p className="text-[11px] font-medium text-slate-400">Primary Concentration</p>
           </Card>
 
-          <Card className="bg-white border-slate-100 p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow rounded-2xl border-l-4 border-l-amber-400">
-            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <Card className="bg-slate-900 border-slate-800 p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow rounded-2xl border-l-4 border-l-amber-400 text-white">
+            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-300">
               <span>Next Renewal</span>
-              <div className="p-1.5 bg-amber-50 rounded-lg">
-                <CalendarDays className="w-4 h-4 text-amber-600" />
+              <div className="p-1.5 bg-amber-900/40 rounded-lg">
+                <CalendarDays className="w-4 h-4 text-amber-400" />
               </div>
             </div>
-            <p className="text-sm font-black text-slate-900 uppercase">
+            <p className="text-sm font-black text-white uppercase">
               {nextRenewalLabel}
             </p>
             <p className="text-[11px] font-medium text-slate-400">Strategic Alert</p>
@@ -234,11 +234,11 @@ export default function DashboardPage() {
                 <span className="font-black text-slate-900">KES 50,000</span>
               </div>
             </div>
-            
+
             <div className="space-y-3">
               <div className="flex justify-between items-end">
                 <span className="text-2xl font-black text-slate-900">
-                   {Math.min(100, Math.round((monthlyTotal / 50000) * 100))}%
+                  {Math.min(100, Math.round((monthlyTotal / 50000) * 100))}%
                 </span>
                 <span className="text-xs font-bold text-slate-400 uppercase">
                   KES {monthlyTotal.toLocaleString()} utilized
@@ -257,7 +257,7 @@ export default function DashboardPage() {
               <Badge
                 variant={monthlyTotal > 50000 ? 'destructive' : 'secondary'}
                 className={`mt-2 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-lg ${
-                    monthlyTotal <= 50000 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : ''
+                  monthlyTotal <= 50000 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : ''
                 }`}
               >
                 {monthlyTotal > 50000
@@ -269,7 +269,7 @@ export default function DashboardPage() {
 
           <Card className="bg-slate-900 text-white p-8 flex flex-col gap-6 shadow-xl rounded-[32px] border-none relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-5">
-                <Zap className="w-32 h-32" />
+              <Zap className="w-32 h-32" />
             </div>
             <div className="relative z-10">
               <h3 className="text-xs font-black uppercase tracking-widest text-emerald-400">
@@ -279,7 +279,7 @@ export default function DashboardPage() {
                 Impending charges in the next 7 days.
               </p>
             </div>
-            
+
             <div className="space-y-3 relative z-10">
               {isLoading || !subscriptions.length ? (
                 <p className="text-xs text-slate-500 italic">
@@ -311,7 +311,7 @@ export default function DashboardPage() {
                       <div className="text-right">
                         <span className="text-[10px] font-black text-emerald-500 uppercase block">Due</span>
                         <span className="text-xs font-bold text-slate-300">
-                            {new Date(sub.nextBillingDate as unknown as Date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                          {new Date(sub.nextBillingDate as unknown as Date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
                         </span>
                       </div>
                     </div>
@@ -339,20 +339,36 @@ export default function DashboardPage() {
                 Awaiting data to generate distribution insights.
               </p>
             ) : (
-              categoryBreakdown.slice(0, 8).map((cat) => (
-                <Card
-                  key={cat.name}
-                  className="bg-white border-slate-100 p-5 flex flex-col gap-2 shadow-sm hover:border-emerald-200 transition-colors rounded-2xl group"
-                >
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-emerald-600 transition-colors">{cat.name}</p>
-                  <p className="text-xl font-black text-slate-900">
-                    KES {cat.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                  </p>
-                  <div className="w-full h-1 bg-slate-50 rounded-full mt-2 overflow-hidden">
-                      <div className="h-full bg-emerald-500/20 w-full" />
-                  </div>
-                </Card>
-              ))
+              categoryBreakdown.slice(0, 8).map((cat, index) => {
+                const isDark = index % 2 === 1
+
+                return (
+                  <Card
+                    key={cat.name}
+                    className={`border-slate-100 p-5 flex flex-col gap-2 shadow-sm hover:border-emerald-200 transition-colors rounded-2xl group ${
+                      isDark
+                        ? 'bg-slate-900 text-white border-slate-800 hover:border-emerald-500/50'
+                        : 'bg-white text-slate-900'
+                    }`}
+                  >
+                    <p
+                      className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${
+                        isDark
+                          ? 'text-slate-300 group-hover:text-emerald-400'
+                          : 'text-slate-400 group-hover:text-emerald-600'
+                      }`}
+                    >
+                      {cat.name}
+                    </p>
+                    <p className="text-xl font-black">
+                      KES {cat.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </p>
+                    <div className="w-full h-1 bg-slate-800/30 rounded-full mt-2 overflow-hidden">
+                      <div className={`h-full bg-emerald-500/30 w-full`} />
+                    </div>
+                  </Card>
+                )
+              })
             )}
           </div>
         </section>

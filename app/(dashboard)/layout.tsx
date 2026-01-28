@@ -25,13 +25,13 @@ function SidebarLink({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
+      className={`flex items-center gap-3 rounded-xl px-3 py-3 text-base font-medium transition-colors ${
         active
           ? 'bg-slate-900 text-white shadow-sm'
           : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
       }`}
     >
-      <Icon className={`w-4 h-4 ${active ? 'text-emerald-400' : 'text-slate-400'}`} />
+      <Icon className={`w-5 h-5 ${active ? 'text-emerald-400' : 'text-slate-400'}`} />
       <span>{label}</span>
     </Link>
   )
@@ -43,14 +43,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside className="hidden md:flex w-64 flex-col border-r border-slate-100 bg-white px-4 py-6 gap-8">
         <Link href="/dashboard" className="flex items-center gap-3 px-2">
-          <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white font-black">
-            Z
+          <div className="w-14 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white font-black">
+            MSM
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-semibold tracking-tight text-slate-900">
+            <span className="text-lg font-semibold tracking-tight text-slate-900">
               MySubMonitor
             </span>
-            <span className="text-[10px] uppercase tracking-[0.18em] text-slate-400">
+            <span className="text-[14px] uppercase tracking-[0.18em] text-slate-400">
               Control Center
             </span>
           </div>
@@ -67,10 +67,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <SidebarLink href="/analytics" label="Analytics" icon={BarChart3} />
         </nav>
 
-        <div className="mt-auto px-2 text-xs text-slate-400">
-          <p className="font-semibold text-slate-500 mb-1">Demo Mode</p>
-          <p>Sample data only. Connect your real subscriptions next.</p>
-        </div>
+        
       </aside>
 
       {/* Main area */}
@@ -79,4 +76,4 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </div>
     </div>
   )
-} 
+}

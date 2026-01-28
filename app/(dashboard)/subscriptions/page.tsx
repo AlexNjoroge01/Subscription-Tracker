@@ -565,7 +565,7 @@ export default function SubscriptionsPage() {
               </p>
             </div>
           ) : (
-            <Table>
+            <Table className="w-full">
               <TableHeader>
                 <TableRow>
                   <TableHead>Service</TableHead>
