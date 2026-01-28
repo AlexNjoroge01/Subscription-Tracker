@@ -59,8 +59,8 @@ export default function LoginPage() {
                 {/* Brand Logo */}
                 <div className="flex flex-col items-center gap-4">
                     <Link href="/" className="flex items-center gap-2 font-bold text-2xl tracking-tighter">
-                        <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white italic shadow-lg shadow-emerald-500/20">
-                            Z
+                        <div className="w-14 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white italic shadow-lg shadow-emerald-500/20">
+                            MSM
                         </div>
                         MySubMonitor.com
                     </Link>

@@ -43,8 +43,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside className="hidden md:flex w-64 flex-col border-r border-slate-100 bg-white px-4 py-6 gap-8">
         <Link href="/dashboard" className="flex items-center gap-3 px-2">
-          <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white font-black">
-            Z
+          <div className="w-14 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white font-black">
+            MSM
           </div>
           <div className="flex flex-col">
             <span className="text-lg font-semibold tracking-tight text-slate-900">

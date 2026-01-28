@@ -12,7 +12,7 @@ const EntryPage = () => {
       {/* 1. Header & Hero */}
       <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
         <div className="flex items-center gap-2 font-bold text-xl tracking-tighter">
-          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white italic shadow-lg shadow-emerald-500/20">Z</div>
+          <div className="w-16 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white italic shadow-lg shadow-emerald-500/20">MSM</div>
           MySubMonitor.com
         </div>
         <div className="flex items-center gap-6 text-sm font-medium text-slate-500">
@@ -431,7 +431,7 @@ const EntryPage = () => {
           {/* Brand & Tagline */}
           <div className="col-span-1 space-y-4">
             <div className="flex items-center gap-2 font-bold text-xl tracking-tighter">
-              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white italic">Z</div>
+              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white italic">MSM</div>
               MySubMonitor.com
             </div>
             <p className="text-slate-400 text-sm">Master your capital flow, effortlessly.</p>
