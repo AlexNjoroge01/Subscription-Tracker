@@ -1,4 +1,4 @@
-import { PrismaClient } from '@/app/generated/prisma';
+import { prisma} from '../prisma/client';
 import {
     sendRenewalReminder,
     sendOverdueNotification,
@@ -6,7 +6,6 @@ import {
 } from '../email/email-service';
 import { addDays, differenceInDays, startOfDay } from 'date-fns';
 
-const prisma = new PrismaClient();
 
 interface NotificationResult {
     notificationsCreated: number;
@@ -226,6 +225,7 @@ export async function generateBudgetWarnings(): Promise<NotificationResult> {
 
         for (const category of categories) {
             if (!category.budgetLimit) continue;
+            const budgetLimit = category.budgetLimit; // Now TypeScript knows it's number
 
             // Calculate total monthly spending for this category
             const monthlySpending = category.subscriptions.reduce((total, sub) => {
@@ -241,7 +241,7 @@ export async function generateBudgetWarnings(): Promise<NotificationResult> {
                 return total + monthlyAmount;
             }, 0);
 
-            const percentageUsed = (monthlySpending / category.budgetLimit) * 100;
+            const percentageUsed = (monthlySpending / budgetLimit) * 100;
 
             // Only send warning if spending is at or above 80%
             if (percentageUsed < 80) {
@@ -272,7 +272,7 @@ export async function generateBudgetWarnings(): Promise<NotificationResult> {
                     data: {
                         userId: category.userId,
                         type: 'budget_warning',
-                        message: `Budget warning: ${category.name} category is at ${percentageUsed.toFixed(0)}% of your ${category.user.currency} ${category.budgetLimit.toFixed(2)} limit`,
+                        message: `Budget warning: ${category.name} category is at ${percentageUsed.toFixed(0)}% of your ${category.user.currency} ${budgetLimit.toFixed(2)} limit`,
                     },
                 });
                 result.notificationsCreated++;
@@ -284,7 +284,7 @@ export async function generateBudgetWarnings(): Promise<NotificationResult> {
             try {
                 const emailResult = await sendBudgetWarning(
                     category.user,
-                    category,
+                    { ...category, budgetLimit },
                     monthlySpending
                 );
                 if (emailResult.success) {

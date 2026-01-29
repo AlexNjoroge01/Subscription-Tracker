@@ -4,12 +4,12 @@ import { z } from 'zod'
 export const subscriptionSchema = z.object({
     name: z.string().min(1, 'Subscription name is required').max(100),
     amount: z.number().positive('Amount must be greater than 0'),
-    currency: z.string().default('KES'),
+    currency: z.string(),
     billingCycle: z.enum(['monthly', 'annual', 'custom']),
     customDays: z.number().int().positive().optional(),
     // Accept both Date objects and ISO date strings from the client
     nextBillingDate: z.coerce.date(),
-    status: z.enum(['active', 'cancelled', 'overdue', 'scheduled']).default('active'),
+    status: z.enum(['active', 'cancelled', 'overdue', 'scheduled']),
     categoryId: z.string().optional(),
     familyMember: z.string().max(50).optional(),
     logo: z.string().url().optional(),
@@ -18,12 +18,17 @@ export const subscriptionSchema = z.object({
 
 export const createSubscriptionSchema = subscriptionSchema
 
-export const updateSubscriptionSchema = subscriptionSchema.partial()
+export const updateSubscriptionSchema = subscriptionSchema
+  .omit({ nextBillingDate: true })
+  .partial()
+  .extend({
+    nextBillingDate: z.coerce.date().optional()
+  })
 
 // Category validation schema
 export const categorySchema = z.object({
     name: z.string().min(1, 'Category name is required').max(50),
-    color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid color format').default('#3b82f6'),
+    color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid color format'),
     icon: z.string().max(50).optional(),
     budgetLimit: z.number().positive().optional(),
 })
@@ -35,7 +40,7 @@ export const updateCategorySchema = categorySchema.partial()
 // User preferences schema
 export const userPreferencesSchema = z.object({
     name: z.string().min(1).max(100).optional(),
-    currency: z.string().length(3).default('KES'),
+    currency: z.string().length(3),
     monthlyBudget: z.number().positive().optional(),
 })
 
