@@ -46,8 +46,8 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import type { Subscription } from '../../generated/prisma/client'
-import type { Category } from '../../generated/prisma/client'
+import type { Subscription } from '@prisma/client'
+import type { Category } from '@prisma/client'
 import { createSubscriptionSchema, updateSubscriptionSchema } from '@/schemas'
 import {
   DropdownMenu,

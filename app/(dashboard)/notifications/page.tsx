@@ -10,8 +10,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
-import type { Notification } from '../../generated/prisma/client'
-import type { Subscription } from '../../generated/prisma/client'
+import type { Notification } from '@prisma/client'
+import type { Subscription } from '@prisma/client'
 
 type NotificationWithSub = Notification & {
   subscription: Pick<Subscription, 'id' | 'name' | 'amount' | 'currency' | 'nextBillingDate'> | null

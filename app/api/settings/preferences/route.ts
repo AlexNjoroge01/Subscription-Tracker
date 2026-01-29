@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth/options';
-import { PrismaClient } from '@/app/generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { notificationPreferencesSchema } from '@/schemas/preferences-schema';
 import { prisma } from '@/lib/prisma/client';
 
