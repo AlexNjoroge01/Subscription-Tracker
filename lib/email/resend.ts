@@ -1,8 +1,10 @@
 import { Resend } from 'resend';
 
-const resendApiKey = process.env.RESEND_API_KEY;
+if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY is not defined in environment variables');
+}
 
-export const resend = resendApiKey ? new Resend(resendApiKey) : null;
+export const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendEmail({
     to,
@@ -14,11 +16,6 @@ export async function sendEmail({
     react: React.ReactElement;
 }) {
     try {
-        if (!resend) {
-            console.error('Resend client not initialized. Check RESEND_API_KEY.');
-            return { success: false, error: new Error('Resend client not initialized') };
-        }
-
         const { data, error } = await resend.emails.send({
             from: 'Subscription Tracker <onboarding@resend.dev>',
             to,

@@ -9,7 +9,9 @@ import {
   FolderKanban,
   BarChart3,
   Settings,
+  LogOut,
 } from 'lucide-react'
+import { signOut } from 'next-auth/react'
 
 function SidebarLink({
   href,
@@ -27,8 +29,8 @@ function SidebarLink({
     <Link
       href={href}
       className={`flex items-center gap-3 rounded-xl px-3 py-3 text-base font-medium transition-colors ${active
-          ? 'bg-slate-900 text-white shadow-sm'
-          : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+        ? 'bg-slate-900 text-white shadow-sm'
+        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
         }`}
     >
       <Icon className={`w-5 h-5 ${active ? 'text-emerald-400' : 'text-slate-400'}`} />
@@ -68,7 +70,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <SidebarLink href="/settings" label="Settings" icon={Settings} />
         </nav>
 
-
+        <div className=" pt-0.5 pl-2 mt-auto border-t border-slate-100 bg-slate-900 rounded-xl">
+          <button
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            className="flex w-full items-center gap-3 rounded-xl  px-3 py-3 text-base font-medium transition-colors text-slate-500  group"
+          >
+            <LogOut className="w-5 h-5 text-white  group-hover:text-red-500" />
+            <span className='text-white'>Logout</span>
+          </button>
+        </div>
       </aside>
 
       {/* Main area */}
