@@ -33,7 +33,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import type { Category } from '../../generated/prisma/client'
+import type { Category } from '@prisma/client'
 import { createCategorySchema, updateCategorySchema } from '@/schemas'
 
 type CategoryWithCount = Category & {
