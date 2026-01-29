@@ -46,8 +46,8 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import type { Subscription } from '@/app/generated/prisma/models/Subscription'
-import type { Category } from '@/app/generated/prisma/models/Category'
+import type { Subscription } from '../../generated/prisma/client'
+import type { Category } from '../../generated/prisma/client'
 import { createSubscriptionSchema, updateSubscriptionSchema } from '@/schemas'
 import {
   DropdownMenu,
@@ -94,9 +94,9 @@ export default function SubscriptionsPage() {
     },
   })
 
-  const editForm = useForm<z.infer<typeof updateSubscriptionSchema>>({
-    resolver: zodResolver(updateSubscriptionSchema),
-  })
+ const editForm = useForm({
+  resolver: zodResolver(updateSubscriptionSchema),
+})
 
   const loadSubscriptions = async () => {
     try {

@@ -18,7 +18,7 @@ export async function sendEmail({
     try {
         const { data, error } = await resend.emails.send({
             from: 'Subscription Tracker <onboarding@resend.dev>',
-            to: 'alexnjoroge102@gmail.com',
+            to,
             subject,
             react,
         });

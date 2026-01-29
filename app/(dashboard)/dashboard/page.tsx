@@ -15,8 +15,8 @@ import {
 
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import type { Subscription } from '@/app/generated/prisma/models/Subscription'
-import type { Category } from '@/app/generated/prisma/models/Category'
+import type { Subscription } from '../../generated/prisma/client'
+import type { Category } from '../../generated/prisma/client'
 
 type SubscriptionWithCategory = Subscription & {
   category: Category | null
