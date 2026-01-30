@@ -3,13 +3,14 @@ import { prisma } from '@/lib/prisma/client'
 import { requireAuth } from '@/lib/api/auth-guard'
 import { createCategorySchema } from '@/schemas'
 import { error, success, unauthorized, validationError } from '@/lib/api/response'
+import { DEFAULT_CATEGORIES } from '@/lib/defaults/default-categories'
 
 // GET /api/categories - List all categories for authenticated user
 export async function GET(request: NextRequest) {
     try {
         const user = await requireAuth()
 
-        const categories = await prisma.category.findMany({
+        let categories = await prisma.category.findMany({
             where: {
                 userId: user.id,
             },
@@ -22,6 +23,34 @@ export async function GET(request: NextRequest) {
                 name: 'asc',
             },
         })
+
+        // Auto-seed if user has no categories
+        if (categories.length === 0) {
+            await prisma.category.createMany({
+                data: DEFAULT_CATEGORIES.map(cat => ({
+                    name: cat.name,
+                    color: cat.color,
+                    icon: cat.icon,
+                    budgetLimit: cat.budgetLimit,
+                    userId: user.id
+                }))
+            })
+
+            // Re-fetch after seeding
+            categories = await prisma.category.findMany({
+                where: {
+                    userId: user.id,
+                },
+                include: {
+                    _count: {
+                        select: { subscriptions: true }
+                    }
+                },
+                orderBy: {
+                    name: 'asc',
+                },
+            })
+        }
 
         return success(categories)
     } catch (err) {

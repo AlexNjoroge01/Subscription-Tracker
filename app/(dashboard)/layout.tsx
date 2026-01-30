@@ -52,8 +52,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const navLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
     { href: '/categories', label: 'Categories', icon: FolderKanban },
+    { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard },    
     { href: '/notifications', label: 'Notifications', icon: FolderKanban },
     { href: '/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/settings', label: 'Settings', icon: Settings },

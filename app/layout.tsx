@@ -36,7 +36,7 @@ export default function RootLayout({
           <Toaster position="top-right" richColors />
         </Providers>
       </body>
-      <script defer src="https://cloud.umami.is/script.js" data-website-id="a76cdf5b-efa9-408c-9ff7-19738539ceeb"></script>
+      <script async defer src="https://cloud.umami.is/script.js" data-website-id="a76cdf5b-efa9-408c-9ff7-19738539ceeb"></script>
     </html>
   );
 }
