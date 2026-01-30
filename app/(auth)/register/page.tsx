@@ -69,137 +69,137 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center p-6 selection:bg-emerald-100">
+        <div className="min-h-screen bg-[#FAFAFA] flex flex-col items-center justify-center p-6 selection:bg-emerald-100 font-poppins">
             {/* Background Decorative Blobs - Matches Login Page */}
             <div className="fixed top-[-10%] right-[-10%] w-[500px] h-[500px] bg-emerald-200/30 rounded-full blur-[120px] -z-10" />
             <div className="fixed bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-100/30 rounded-full blur-[120px] -z-10" />
 
-            <div className="w-full max-w-[600px] space-y-8">
+            <div className="w-full max-w-[600px] space-y-12">
                 {/* Brand Logo */}
-                <div className="flex flex-col items-center gap-4">
-                    <Link href="/" className="flex items-center gap-2 font-bold text-2xl tracking-tighter">
-                        <div className="w-14 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white italic shadow-lg shadow-emerald-500/20">
+                <div className="flex flex-col items-center gap-6">
+                    <Link href="/" className="flex items-center gap-3 font-bold text-3xl tracking-tighter">
+                        <div className="w-14 h-11 bg-emerald-600 rounded-2xl flex items-center justify-center text-white italic shadow-lg shadow-emerald-500/20">
                             MSM
                         </div>
                         MySubscriptionMonitor
                     </Link>
-                    <div className="text-center space-y-2">
-                        <h1 className="text-3xl font-black tracking-tight text-slate-900">
+                    <div className="text-center space-y-3">
+                        <h1 className="text-4xl font-black tracking-tight text-slate-900">
                             Create Account
                         </h1>
-                        <p className="text-slate-500 font-medium">
+                        <p className="text-slate-500 font-semibold">
                             Join the inner circle and master capital.
                         </p>
                     </div>
                 </div>
 
                 {/* Register Card Shell */}
-                <div className="bg-white border border-slate-200/60 rounded-[32px] shadow-2xl shadow-slate-200/50 p-8 backdrop-blur-xl">
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                        <div className="space-y-4">
+                <div className="bg-white border border-slate-200/60 rounded-[3rem] shadow-2xl shadow-slate-200/50 p-10 backdrop-blur-xl">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+                        <div className="space-y-6">
                             {/* Name Field */}
-                            <div className="space-y-2">
-                                <Label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">
+                            <div className="space-y-3">
+                                <Label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-2">
                                     Full Name
                                 </Label>
                                 <div className="relative">
-                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <User className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                     <Input
                                         id="name"
                                         type="text"
                                         placeholder="Alex Maina"
                                         {...register('name')}
                                         disabled={isLoading}
-                                        className="pl-11 h-12 rounded-2xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all"
+                                        className="pl-13 h-14 rounded-2xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all font-medium"
                                     />
                                 </div>
                                 {errors.name && (
-                                    <p className="text-xs font-medium text-red-500 ml-1">{errors.name.message}</p>
+                                    <p className="text-xs font-semibold text-red-500 ml-2">{errors.name.message}</p>
                                 )}
                             </div>
 
                             {/* Email Field */}
-                            <div className="space-y-2">
-                                <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">
+                            <div className="space-y-3">
+                                <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-2">
                                     Email Address
                                 </Label>
                                 <div className="relative">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                     <Input
                                         id="email"
                                         type="email"
                                         placeholder="alex@example.com"
                                         {...register('email')}
                                         disabled={isLoading}
-                                        className="pl-11 h-12 rounded-2xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all"
+                                        className="pl-13 h-14 rounded-2xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all font-medium"
                                     />
                                 </div>
                                 {errors.email && (
-                                    <p className="text-xs font-medium text-red-500 ml-1">{errors.email.message}</p>
+                                    <p className="text-xs font-semibold text-red-500 ml-2">{errors.email.message}</p>
                                 )}
                             </div>
 
                             {/* Password Field */}
-                            <div className="space-y-2">
-                                <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">
+                            <div className="space-y-3">
+                                <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-2">
                                     Create Password
                                 </Label>
                                 <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                     <Input
                                         id="password"
                                         type="password"
                                         placeholder="••••••••"
                                         {...register('password')}
                                         disabled={isLoading}
-                                        className="pl-11 h-12 rounded-2xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all"
+                                        className="pl-13 h-14 rounded-2xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all font-medium"
                                     />
                                 </div>
                                 {errors.password && (
-                                    <p className="text-xs font-medium text-red-500 ml-1">{errors.password.message}</p>
+                                    <p className="text-xs font-semibold text-red-500 ml-2">{errors.password.message}</p>
                                 )}
                             </div>
 
                             {/* Confirm Password Field */}
-                            <div className="space-y-2">
-                                <Label htmlFor="confirmPassword" className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-1">
+                            <div className="space-y-3">
+                                <Label htmlFor="confirmPassword" className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-2">
                                     Confirm Password
                                 </Label>
                                 <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                     <Input
                                         id="confirmPassword"
                                         type="password"
                                         placeholder="••••••••"
                                         {...register('confirmPassword')}
                                         disabled={isLoading}
-                                        className="pl-11 h-12 rounded-2xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all"
+                                        className="pl-13 h-14 rounded-2xl border-slate-200 bg-slate-50/50 focus-visible:ring-emerald-500 focus-visible:border-emerald-500 transition-all font-medium"
                                     />
                                 </div>
                                 {errors.confirmPassword && (
-                                    <p className="text-xs font-medium text-red-500 ml-1">{errors.confirmPassword.message}</p>
+                                    <p className="text-xs font-semibold text-red-500 ml-2">{errors.confirmPassword.message}</p>
                                 )}
                             </div>
                         </div>
 
-                        <Button 
-                            type="submit" 
-                            className="w-full h-12 bg-slate-900 hover:bg-emerald-600 text-white font-bold rounded-2xl transition-all shadow-xl shadow-slate-900/10 group" 
+                        <Button
+                            type="submit"
+                            className="w-full h-14 bg-slate-900 hover:bg-emerald-600 text-white font-bold rounded-2xl transition-all shadow-xl shadow-slate-900/10 group active:scale-[0.98]"
                             disabled={isLoading}
                         >
                             {isLoading ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
+                                <Loader2 className="w-6 h-6 animate-spin" />
                             ) : (
-                                <span className="flex items-center gap-2">
-                                    Create Account <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                <span className="flex items-center gap-3 text-base">
+                                    Create Account <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </span>
                             )}
                         </Button>
                     </form>
 
                     {/* Footer Links */}
-                    <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col items-center gap-4">
-                        <p className="text-sm font-medium text-slate-500">
+                    <div className="mt-10 pt-8 border-t border-slate-100 flex flex-col items-center gap-4">
+                        <p className="text-sm font-semibold text-slate-500">
                             Already in the circle?{' '}
                             <Link href="/login" className="text-emerald-600 font-bold hover:underline">
                                 Sign In
@@ -209,8 +209,8 @@ export default function RegisterPage() {
                 </div>
 
                 {/* Secure Badge */}
-                <div className="flex items-center justify-center gap-2 text-slate-400">
-                    <Zap className="w-3 h-3 fill-slate-400" />
+                <div className="flex items-center justify-center gap-3 text-slate-400">
+                    <Zap className="w-4 h-4 fill-slate-400" />
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
                         End-to-End Encryption Secured
                     </span>
