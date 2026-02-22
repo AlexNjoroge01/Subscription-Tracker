@@ -11,13 +11,13 @@ import {
   CalendarDays,
   Tag,
   User,
-  CreditCard,
   Filter,
   MoreHorizontal,
   Pencil,
   Trash2,
   Search,
 } from 'lucide-react'
+import { LogoPicker, getLogoUrl } from '@/components/logo-picker'
 
 import {
   Table,
@@ -480,17 +480,17 @@ export default function SubscriptionsPage() {
                       name="logo"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Logo URL</FormLabel>
+                          <FormLabel>Service Logo</FormLabel>
                           <FormControl>
-                            <div className="relative">
-                              <CreditCard className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                              <Input
-                                placeholder="https://logo.clearbit.com/netflix.com"
-                                className="pl-9"
-                                {...field}
-                              />
-                            </div>
+                            <LogoPicker
+                              value={field.value || ''}
+                              onChange={field.onChange}
+                              serviceName={form.watch('name')}
+                            />
                           </FormControl>
+                          <p className="text-xs text-slate-500 mt-1">
+                            Select from popular services or use a custom logo URL
+                          </p>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -602,7 +602,7 @@ export default function SubscriptionsPage() {
                       {sub.logo ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={sub.logo}
+                          src={getLogoUrl(sub.logo) || sub.logo}
                           alt={sub.name}
                           className="w-8 h-8 rounded-xl object-cover"
                         />
@@ -873,10 +873,17 @@ export default function SubscriptionsPage() {
                     name="logo"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Logo URL</FormLabel>
+                        <FormLabel>Service Logo</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <LogoPicker
+                            value={field.value || ''}
+                            onChange={field.onChange}
+                            serviceName={editForm.watch('name')}
+                          />
                         </FormControl>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Select from popular services or use a custom logo URL
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
