@@ -1,19 +1,25 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Cormorant_Garamond, Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import { Providers } from "./providers";
 import "./globals.css";
 import Script from "next/script";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  weight: ["300", "400", "500", "600", "700"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "Subscription Tracker",
-  description: "Track and manage your subscriptions",
+  title: "SubTrack - Subscription Tracker",
+  description: "Track and manage your subscriptions with elegance",
 };
 
 export default function RootLayout({
@@ -24,8 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-
-        className={`${poppins.variable} antialiased font-poppins`}
+        className={`${cormorant.variable} ${inter.variable} antialiased font-sans`}
       >
         <Providers>
           {children}
