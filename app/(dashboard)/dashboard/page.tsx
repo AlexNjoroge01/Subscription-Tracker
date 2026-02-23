@@ -6,7 +6,6 @@ import { toast } from 'sonner'
 import {
   ArrowUpRight,
   ArrowDownRight,
-  Bell,
   CreditCard,
   CalendarDays,
   Wallet,
@@ -15,6 +14,7 @@ import {
 
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { NotificationBell } from '@/components/notification-bell'
 import type { Subscription } from '@prisma/client'
 import type { Category } from '@prisma/client'
 
@@ -133,9 +133,7 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="flex items-center gap-4 text-xs">
-          <button className="relative rounded-full bg-slate-100 p-2 hover:bg-emerald-50 hover:text-emerald-600 transition-all">
-            <Bell className="w-4 h-4" />
-          </button>
+          <NotificationBell />
           <div className="flex items-center gap-2 rounded-full bg-slate-900 text-white px-3 py-1.5 shadow-lg shadow-slate-900/10">
             <div className="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center text-[10px] font-black italic">
               {displayName.charAt(0)}
