@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma/client'
 import { requireAuth } from '@/lib/api/auth-guard'
 import { createSubscriptionSchema } from '@/schemas'
 import { error, success, unauthorized, validationError } from '@/lib/api/response'
+import { canAddSubscription } from '@/lib/plan-limits'
 
 // GET /api/subscriptions - List all subscriptions for authenticated user
 export async function GET(request: NextRequest) {
@@ -57,6 +58,15 @@ export async function POST(request: NextRequest) {
         }
 
         const data = validation.data
+
+        // Check plan limits
+        const subscriptionCheck = await canAddSubscription(user.id)
+        if (!subscriptionCheck.allowed) {
+            return error(
+                `You've reached your subscription limit (${subscriptionCheck.max}). Upgrade your plan to add more.`,
+                403
+            )
+        }
 
         // Create subscription
         const subscription = await prisma.subscription.create({

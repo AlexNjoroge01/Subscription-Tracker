@@ -10,6 +10,12 @@ datasource db {
   provider = "postgresql"
 }
 
+// User role enum
+enum UserRole {
+  USER
+  SUPERUSER
+}
+
 // User model - Authentication and user preferences
 model User {
   id            String         @id @default(cuid())
@@ -20,6 +26,12 @@ model User {
   image         String?
   currency      String         @default("KES")
   monthlyBudget Float?
+  role          UserRole       @default(USER)
+  
+  // Plan tracking
+  planId        String?        @default("starter-plan")
+  trialEndsAt   DateTime?      // When the trial ends
+  planEndsAt    DateTime?      // When the paid plan ends (for subscriptions)
   
   // Notification preferences
   emailNotificationsEnabled Boolean @default(true)
@@ -36,6 +48,8 @@ model User {
   subscriptions Subscription[]
   categories    Category[]
   notifications Notification[]
+  payments      Payment[]
+  plan          PaymentPlan?   @relation(fields: [planId], references: [id])
 }
 
 // Category model - Subscription categorization with budgets
@@ -90,4 +104,42 @@ model Notification {
   
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+// Payment Plan model - Subscription plans for the app
+model PaymentPlan {
+  id          String   @id @default(cuid())
+  name        String   // "starter", "pro", "premium"
+  price       Float    // Price in USD
+  currency    String   @default("USD")
+  interval    String   @default("monthly") // "monthly", "annual"
+  features    String[] // Array of feature strings
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  payments Payment[]
+  users    User[]
+}
+
+// Payment model - Track payments from users
+model Payment {
+  id              String      @id @default(cuid())
+  userId          String
+  planId          String
+  amount          Float
+  currency        String      @default("KES")
+  status          String      @default("pending") // "pending", "completed", "failed", "refunded"
+  provider        String      @default("paystack")
+  providerRef     String?     @unique // Paystack reference
+  providerId      String?     // Paystack transaction ID
+  paidAt          DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  user User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan PaymentPlan @relation(fields: [planId], references: [id])
+  
+  @@index([userId])
+  @@index([providerRef])
 }

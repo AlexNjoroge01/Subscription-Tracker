@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import {
   LayoutDashboard,
   CreditCard,
@@ -14,6 +15,8 @@ import {
   Menu,
   X,
   Bell,
+  Crown,
+  Shield,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 
@@ -49,17 +52,24 @@ function SidebarLink({
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { data: session } = useSession()
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen)
 
-  const navLinks = [
+  const baseNavLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
     { href: '/categories', label: 'Categories', icon: FolderKanban },
     { href: '/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/notifications', label: 'Notifications', icon: Bell },
+    { href: '/pricing', label: 'Upgrade', icon: Crown },
     { href: '/settings', label: 'Settings', icon: Settings },
   ]
+
+  // Add admin link for superusers
+  const navLinks = session?.user?.role === 'SUPERUSER'
+    ? [...baseNavLinks, { href: '/admin', label: 'Admin', icon: Shield }]
+    : baseNavLinks
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex flex-col md:flex-row">
@@ -75,13 +85,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             SubTrack
           </span>
         </Link>
-        <button
-          onClick={toggleMobileMenu}
-          className="p-2 text-slate-500 hover:text-slate-900 transition-colors rounded-lg hover:bg-slate-100"
-          aria-label="Toggle menu"
-        >
-          {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleMobileMenu}
+            className="p-2 text-slate-500 hover:text-slate-900 transition-colors rounded-lg hover:bg-slate-100"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </header>
 
       {/* Mobile Sidebar Overlay */}
