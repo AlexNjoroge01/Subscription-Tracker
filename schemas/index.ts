@@ -1,10 +1,13 @@
 import { z } from 'zod'
+import { CURRENCY_CODES } from '@/lib/currencies'
 
 // Subscription validation schema
 export const subscriptionSchema = z.object({
     name: z.string().min(1, 'Subscription name is required').max(100),
     amount: z.number().positive('Amount must be greater than 0'),
-    currency: z.string(),
+    currency: z.enum(CURRENCY_CODES as [string, ...string[]], {
+        message: 'Invalid currency code'
+    }),
     billingCycle: z.enum(['monthly', 'annual', 'custom']),
     customDays: z.number().int().positive().optional(),
     // Accept both Date objects and ISO date strings from the client
@@ -40,7 +43,9 @@ export const updateCategorySchema = categorySchema.partial()
 // User preferences schema
 export const userPreferencesSchema = z.object({
     name: z.string().min(1).max(100).optional(),
-    currency: z.string().length(3),
+    currency: z.enum(CURRENCY_CODES as [string, ...string[]], {
+        message: 'Invalid currency code'
+    }),
     monthlyBudget: z.number().positive().optional(),
 })
 

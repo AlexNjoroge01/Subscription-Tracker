@@ -17,6 +17,7 @@ import { BarChart3, LineChart as LineChartIcon, PieChart as PieChartIcon } from 
 
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { DEFAULT_CURRENCY, getCurrencySymbol } from '@/lib/currencies'
 
 type Overview = {
   monthlyTotal: number
@@ -24,6 +25,7 @@ type Overview = {
   avgPerSub: number
   yearlyProjection: number
   topCategory: { name: string; total: number } | null
+  currency?: string
 }
 
 type TrendPoint = {
@@ -100,7 +102,7 @@ export default function AnalyticsPage() {
             </p>
             <p className="text-xl font-black text-slate-900">
               {overview
-                ? `KES ${overview.monthlyTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                ? `${getCurrencySymbol(overview.currency || DEFAULT_CURRENCY)} ${overview.monthlyTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
                 : '—'}
             </p>
             <p className="text-[11px] text-slate-400">Active burn this month</p>
@@ -122,7 +124,7 @@ export default function AnalyticsPage() {
             </p>
             <p className="text-xl font-black text-slate-900">
               {overview
-                ? `KES ${overview.avgPerSub.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                ? `${getCurrencySymbol(overview.currency || DEFAULT_CURRENCY)} ${overview.avgPerSub.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
                 : '—'}
             </p>
             <p className="text-[11px] text-slate-400">Normalised monthly run-rate</p>
@@ -134,7 +136,7 @@ export default function AnalyticsPage() {
             </p>
             <p className="text-xl font-black text-white">
               {overview
-                ? `KES ${overview.yearlyProjection.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                ? `${getCurrencySymbol(overview.currency || DEFAULT_CURRENCY)} ${overview.yearlyProjection.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
                 : '—'}
             </p>
             <p className="text-[11px] text-slate-400">If nothing changes</p>
@@ -183,8 +185,8 @@ export default function AnalyticsPage() {
                       tick={{ fontSize: 11, fill: '#64748b' }}
                     />
                     <RechartsTooltip
-                      formatter={(value: any) =>
-                        `KES ${Number(value).toLocaleString(undefined, {
+                      formatter={(value) =>
+                        `${getCurrencySymbol(overview?.currency || DEFAULT_CURRENCY)} ${Number(value).toLocaleString(undefined, {
                           maximumFractionDigits: 0,
                         })}`
                       }
@@ -249,9 +251,9 @@ export default function AnalyticsPage() {
                         ))}
                       </Pie>
                       <RechartsTooltip
-                        formatter={(value: any, _name, item: any) =>
+                        formatter={(value, _name, item) =>
                           [
-                            `KES ${Number(value).toLocaleString(undefined, {
+                            `${getCurrencySymbol(overview?.currency || DEFAULT_CURRENCY)} ${Number(value).toLocaleString(undefined, {
                               maximumFractionDigits: 0,
                             })}`,
                             item?.payload?.name,
@@ -278,7 +280,7 @@ export default function AnalyticsPage() {
                       <span className="font-medium">{cat.name}</span>
                     </div>
                     <span className="font-semibold text-white">
-                      KES {cat.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      {getCurrencySymbol(overview?.currency || DEFAULT_CURRENCY)} {cat.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </span>
                   </div>
                 ))}
@@ -306,7 +308,7 @@ export default function AnalyticsPage() {
               </p>
               <p className="mt-1 text-sm text-slate-700">
                 {overview?.topCategory
-                  ? `${overview.topCategory.name} is your heaviest lane at KES ${overview.topCategory.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}. Consider pruning within this category first.`
+                  ? `${overview.topCategory.name} is your heaviest lane at ${getCurrencySymbol(overview.currency || DEFAULT_CURRENCY)} ${overview.topCategory.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}. Consider pruning within this category first.`
                   : 'Once you add a few subscriptions, we will highlight your highest-cost lane here.'}
               </p>
             </Card>
@@ -317,7 +319,7 @@ export default function AnalyticsPage() {
               </p>
               <p className="mt-1 text-sm text-slate-300">
                 {overview
-                  ? `At the current burn, you will deploy approximately KES ${overview.yearlyProjection.toLocaleString(undefined, { maximumFractionDigits: 0 })} over the next 12 months.`
+                  ? `At the current burn, you will deploy approximately ${getCurrencySymbol(overview.currency || DEFAULT_CURRENCY)} ${overview.yearlyProjection.toLocaleString(undefined, { maximumFractionDigits: 0 })} over the next 12 months.`
                   : 'Yearly projection will appear once we detect a stable monthly pattern.'}
               </p>
             </Card>
@@ -328,7 +330,7 @@ export default function AnalyticsPage() {
               </p>
               <p className="mt-1 text-sm text-slate-700">
                 {overview && overview.activeCount > 0
-                  ? `Each active subscription costs you an average of KES ${overview.avgPerSub.toLocaleString(undefined, { maximumFractionDigits: 0 })} per month.`
+                  ? `Each active subscription costs you an average of ${getCurrencySymbol(overview.currency || DEFAULT_CURRENCY)} ${overview.avgPerSub.toLocaleString(undefined, { maximumFractionDigits: 0 })} per month.`
                   : 'Average cost per subscription will populate once you have active entries.'}
               </p>
             </Card>
