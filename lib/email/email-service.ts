@@ -4,6 +4,7 @@ import {
     OverdueNotificationEmail,
     DailyDigestEmail,
     BudgetWarningEmail,
+    PasswordResetEmail,
 } from './templates';
 import { format } from 'date-fns';
 
@@ -163,6 +164,23 @@ export async function sendBudgetWarning(
     return await sendEmail({
         to: user.email,
         subject: `Budget Warning: ${category.name} category`,
+        react: emailContent,
+    });
+}
+
+export async function sendPasswordResetEmail(
+    email: string,
+    resetUrl: string,
+    userName?: string
+) {
+    const emailContent = PasswordResetEmail({
+        userName: userName || 'there',
+        resetUrl,
+    });
+
+    return await sendEmail({
+        to: email,
+        subject: 'Reset your SubTrack password',
         react: emailContent,
     });
 }

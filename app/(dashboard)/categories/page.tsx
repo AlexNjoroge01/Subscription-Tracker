@@ -33,6 +33,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { IconPicker, getIconUrl } from '@/components/icon-picker'
 import type { Category } from '@prisma/client'
 import { createCategorySchema, updateCategorySchema } from '@/schemas'
 
@@ -244,8 +245,15 @@ export default function CategoriesPage() {
                       <FormItem>
                         <FormLabel>Icon (optional)</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. 🎬" {...field} />
+                          <IconPicker
+                            value={field.value || ''}
+                            onChange={field.onChange}
+                            color={createForm.watch('color')}
+                          />
                         </FormControl>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Select an icon that represents this category
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -333,59 +341,76 @@ export default function CategoriesPage() {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 gap-4">
-              {categories.map((category) => (
-                <div
-                  key={category.id}
-                  className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-                        style={{ backgroundColor: `${category.color}22`, color: category.color }}
-                      >
-                        {category.icon || category.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold text-sm text-slate-900">
-                            {category.name}
-                          </p>
-                          <Badge
-                            variant="outline"
-                            className="text-[10px] font-semibold"
-                          >
-                            {category._count?.subscriptions ?? 0} subs
-                          </Badge>
+              {categories.map((category) => {
+                const iconUrl = getIconUrl(category.icon)
+                return (
+                  <div
+                    key={category.id}
+                    className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="w-9 h-9 rounded-xl flex items-center justify-center"
+                          style={{ backgroundColor: `${category.color}22` }}
+                        >
+                          {iconUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={iconUrl}
+                              alt={category.name}
+                              className="w-5 h-5"
+                              style={{ filter: `invert(0) sepia(1) saturate(10000%) hue-rotate(0deg)` }}
+                            />
+                          ) : category.icon ? (
+                            <span className="text-lg">{category.icon}</span>
+                          ) : (
+                            <span className="text-lg font-bold" style={{ color: category.color }}>
+                              {category.name.charAt(0).toUpperCase()}
+                            </span>
+                          )}
                         </div>
-                        {category.budgetLimit && (
-                          <p className="text-xs text-slate-500 mt-1">
-                            Budget: KES {category.budgetLimit.toLocaleString()}
-                          </p>
-                        )}
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-sm text-slate-900">
+                              {category.name}
+                            </p>
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] font-semibold"
+                            >
+                              {category._count?.subscriptions ?? 0} subs
+                            </Badge>
+                          </div>
+                          {category.budgetLimit && (
+                            <p className="text-xs text-slate-500 mt-1">
+                              Budget: KES {category.budgetLimit.toLocaleString()}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon-sm"
-                        className="border-slate-200"
-                        onClick={() => startEdit(category)}
-                      >
-                        <Edit3 className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon-sm"
-                        className="border-slate-200 text-red-500 hover:text-red-600 hover:border-red-200"
-                        onClick={() => handleDelete(category)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon-sm"
+                          className="border-slate-200"
+                          onClick={() => startEdit(category)}
+                        >
+                          <Edit3 className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon-sm"
+                          className="border-slate-200 text-red-500 hover:text-red-600 hover:border-red-200"
+                          onClick={() => handleDelete(category)}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </Card>
@@ -442,8 +467,15 @@ export default function CategoriesPage() {
                       <FormItem>
                         <FormLabel>Icon</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <IconPicker
+                            value={field.value || ''}
+                            onChange={field.onChange}
+                            color={editForm.watch('color')}
+                          />
                         </FormControl>
+                        <p className="text-xs text-slate-500 mt-1">
+                          Select an icon that represents this category
+                        </p>
                         <FormMessage />
                       </FormItem>
                     )}

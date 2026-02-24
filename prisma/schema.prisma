@@ -49,7 +49,8 @@ model User {
   categories    Category[]
   notifications Notification[]
   payments      Payment[]
-  plan          PaymentPlan?   @relation(fields: [planId], references: [id])
+  plan          PaymentPlan?       @relation(fields: [planId], references: [id])
+  passwordResetTokens PasswordResetToken[]
 }
 
 // Category model - Subscription categorization with budgets
@@ -142,4 +143,19 @@ model Payment {
   
   @@index([userId])
   @@index([providerRef])
+}
+
+// Password Reset Token model - For password reset functionality
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([token])
+  @@index([userId])
 }

@@ -11,11 +11,13 @@ import { registerSchema, type RegisterInput } from '@/schemas'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ArrowRight, Lock, Mail, User, Loader2 } from 'lucide-react'
+import { ArrowRight, Lock, Mail, User, Loader2, Eye, EyeOff } from 'lucide-react'
 
 export default function RegisterPage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
     const {
         register,
@@ -185,12 +187,24 @@ export default function RegisterPage() {
                                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                 <Input
                                     id="password"
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     placeholder="••••••••"
                                     {...register('password')}
                                     disabled={isLoading}
-                                    className="pl-14 h-14 text-base"
+                                    className="pl-14 pr-14 h-14 text-base"
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="w-5 h-5" />
+                                    ) : (
+                                        <Eye className="w-5 h-5" />
+                                    )}
+                                </button>
                             </div>
                             {errors.password && (
                                 <p className="text-sm text-red-500">{errors.password.message}</p>
@@ -206,12 +220,24 @@ export default function RegisterPage() {
                                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                 <Input
                                     id="confirmPassword"
-                                    type="password"
+                                    type={showConfirmPassword ? 'text' : 'password'}
                                     placeholder="••••••••"
                                     {...register('confirmPassword')}
                                     disabled={isLoading}
-                                    className="pl-14 h-14 text-base"
+                                    className="pl-14 pr-14 h-14 text-base"
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                    tabIndex={-1}
+                                >
+                                    {showConfirmPassword ? (
+                                        <EyeOff className="w-5 h-5" />
+                                    ) : (
+                                        <Eye className="w-5 h-5" />
+                                    )}
+                                </button>
                             </div>
                             {errors.confirmPassword && (
                                 <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>

@@ -345,3 +345,46 @@ const footer = {
     margin: '32px 0 0',
     padding: '0 40px',
 };
+
+interface PasswordResetEmailProps {
+    userName: string;
+    resetUrl: string;
+}
+
+export const PasswordResetEmail = ({
+    userName,
+    resetUrl,
+}: PasswordResetEmailProps) => {
+    const previewText = 'Reset your SubTrack password';
+
+    return (
+        <Html>
+            <Head />
+            <Preview>{previewText}</Preview>
+            <Body style={main}>
+                <Container style={container}>
+                    <Heading style={h1}>Reset Your Password</Heading>
+                    <Text style={text}>Hi {userName},</Text>
+                    <Text style={text}>
+                        We received a request to reset your password. Click the button below to create a new password:
+                    </Text>
+                    <Button style={button} href={resetUrl}>
+                        Reset Password
+                    </Button>
+                    <Text style={text}>
+                        Or copy and paste this link into your browser:
+                    </Text>
+                    <Text style={{ ...text, fontSize: '14px', wordBreak: 'break-all' }}>
+                        {resetUrl}
+                    </Text>
+                    <Text style={text}>
+                        This link will expire in <strong>1 hour</strong>. If you did not request a password reset, you can safely ignore this email.
+                    </Text>
+                    <Text style={footer}>
+                        You're receiving this email because a password reset was requested for your SubTrack account.
+                    </Text>
+                </Container>
+            </Body>
+        </Html>
+    );
+};
