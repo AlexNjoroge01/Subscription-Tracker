@@ -76,8 +76,7 @@ const EntryPage = () => {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 text-emerald-700 text-sm font-medium mx-auto lg:mx-0">
-                <Zap className="w-4 h-4" />
-                <span>Track every subscription in one place</span>
+                                <span>Track every subscription in one place</span>
               </div>
 
               <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-semibold text-slate-900 leading-tight">
@@ -232,7 +231,7 @@ const EntryPage = () => {
             <h2 className="font-heading text-3xl md:text-4xl font-semibold text-slate-900 mb-4">
               Simple, transparent pricing
             </h2>
-            <p className="text-slate-600">Start free, upgrade when you need more.</p>
+            <p className="text-slate-600">Pricing according to your needs.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -241,7 +240,7 @@ const EntryPage = () => {
               <h3 className="text-lg font-semibold text-slate-900 mb-2">Free</h3>
               <p className="text-slate-500 text-sm mb-6">For personal use</p>
               <div className="text-4xl font-semibold text-slate-900 mb-6">
-                $0<span className="text-lg text-slate-400 font-normal">/mo</span>
+                $9<span className="text-lg text-slate-400 font-normal">/mo</span>
               </div>
               <Link href="/register">
                 <Button variant="outline" className="w-full rounded-xl">Get Started</Button>
@@ -261,7 +260,7 @@ const EntryPage = () => {
               <h3 className="text-lg font-semibold text-slate-900 mb-2">Pro</h3>
               <p className="text-slate-500 text-sm mb-6">For power users</p>
               <div className="text-4xl font-semibold text-slate-900 mb-6">
-                $9<span className="text-lg text-slate-400 font-normal">/mo</span>
+                $19<span className="text-lg text-slate-400 font-normal">/mo</span>
               </div>
               <Link href="/register">
                 <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-xl">Get Started</Button>
@@ -278,7 +277,7 @@ const EntryPage = () => {
               <h3 className="text-lg font-semibold text-slate-900 mb-2">Enterprise</h3>
               <p className="text-slate-500 text-sm mb-6">For teams</p>
               <div className="text-4xl font-semibold text-slate-900 mb-6">
-                $29<span className="text-lg text-slate-400 font-normal">/mo</span>
+                $39<span className="text-lg text-slate-400 font-normal">/mo</span>
               </div>
               <Button variant="outline" className="w-full rounded-xl">Contact Sales</Button>
               <ul className="mt-8 space-y-3 text-sm text-slate-600">

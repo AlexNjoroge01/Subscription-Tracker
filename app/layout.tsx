@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import { Providers } from "./providers";
 import "./globals.css";
 import Script from "next/script";
+import { OrganizationJsonLd, WebApplicationJsonLd, HomepageFAQJsonLd } from "@/components/json-ld";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -18,8 +19,79 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SubTrack - Subscription Tracker",
-  description: "Track and manage your subscriptions with elegance",
+  title: {
+    default: "SubTrack - Smart Subscription Tracker & Budget Manager",
+    template: "%s | SubTrack",
+  },
+  description: "Track all your subscriptions in one place. Get renewal reminders, analyze spending patterns, and save money. Monitor Netflix, Spotify, and 100+ services effortlessly.",
+  keywords: [
+    "subscription tracker",
+    "subscription manager",
+    "budget tracker",
+    "expense tracker",
+    "renewal reminders",
+    "Netflix tracker",
+    "Spotify tracker",
+    "subscription management",
+    "monthly expenses",
+    "recurring payments",
+    "subscription calendar",
+    "budget planning",
+    "personal finance",
+  ],
+  authors: [{ name: "SubTrack Team" }],
+  creator: "SubTrack",
+  publisher: "SubTrack",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://subtrack.app"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName: "SubTrack",
+    title: "SubTrack - Smart Subscription Tracker & Budget Manager",
+    description: "Track all your subscriptions in one place. Get renewal reminders, analyze spending patterns, and save money.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "SubTrack - Subscription Tracker",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SubTrack - Smart Subscription Tracker",
+    description: "Track all your subscriptions in one place. Get renewal reminders, analyze spending patterns, and save money.",
+    images: ["/og-image.png"],
+    creator: "@subtrack",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
+  category: "finance",
 };
 
 export default function RootLayout({
@@ -29,6 +101,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="canonical" href="/" />
+        <OrganizationJsonLd />
+        <WebApplicationJsonLd />
+        <HomepageFAQJsonLd />
+      </head>
       <body
         className={`${cormorant.variable} ${inter.variable} antialiased font-sans`}
       >

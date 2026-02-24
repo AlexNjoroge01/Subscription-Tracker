@@ -320,15 +320,16 @@ export default function SubscriptionsPage() {
                   Add Subscription
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-lg">
+              <DialogContent className="max-w-lg max-h-[90vh] flex flex-col">
                 <DialogHeader>
                   <DialogTitle>Add Subscription</DialogTitle>
                 </DialogHeader>
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-4"
-                  >
+                <div className="flex-1 overflow-y-auto -mx-6 px-6">
+                  <Form {...form}>
+                    <form
+                      onSubmit={form.handleSubmit(onSubmit)}
+                      className="space-y-4"
+                    >
                     <FormField
                       control={form.control}
                       name="name"
@@ -523,6 +524,7 @@ export default function SubscriptionsPage() {
                     </Button>
                   </form>
                 </Form>
+                </div>
               </DialogContent>
             </Dialog>
           </div>
@@ -698,15 +700,16 @@ export default function SubscriptionsPage() {
         {/* Edit dialog */}
         {editing && (
           <Dialog open={!!editing} onOpenChange={(open) => !open && setEditing(null)}>
-            <DialogContent>
+            <DialogContent className="max-h-[90vh] flex flex-col">
               <DialogHeader>
                 <DialogTitle>Edit Subscription</DialogTitle>
               </DialogHeader>
-              <Form {...editForm}>
-                <form
-                  onSubmit={editForm.handleSubmit(handleEdit)}
-                  className="space-y-4"
-                >
+              <div className="flex-1 overflow-y-auto -mx-6 px-6">
+                <Form {...editForm}>
+                  <form
+                    onSubmit={editForm.handleSubmit(handleEdit)}
+                    className="space-y-4"
+                  >
                   <FormField
                     control={editForm.control}
                     name="name"
@@ -911,6 +914,7 @@ export default function SubscriptionsPage() {
                   </Button>
                 </form>
               </Form>
+              </div>
             </DialogContent>
           </Dialog>
         )}

@@ -19,6 +19,7 @@ import {
   Shield,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
+import { DashboardNavbar } from '@/components/dashboard-navbar'
 
 function SidebarLink({
   href,
@@ -107,7 +108,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {/* Sidebar (Desktop & Mobile) */}
       <aside className={`
         fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 px-5 py-6 flex flex-col gap-6 transition-transform duration-300 ease-in-out shadow-xl shadow-slate-200/50 md:shadow-none
-        md:relative md:translate-x-0 md:flex
+        md:sticky md:top-0 md:h-screen md:translate-x-0 md:flex
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Logo */}
@@ -163,6 +164,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
       {/* Main area */}
       <div className="flex-1 flex flex-col min-w-0">
+        <DashboardNavbar />
         {children}
       </div>
     </div>
