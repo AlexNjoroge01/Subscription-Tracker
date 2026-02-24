@@ -15,6 +15,7 @@ import {
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { NotificationBell } from '@/components/notification-bell'
+import { getCurrencySymbol } from '@/lib/currencies'
 import type { Subscription } from '@prisma/client'
 import type { Category } from '@prisma/client'
 
@@ -125,7 +126,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex-1 bg-[#FAFAFA] text-slate-900 selection:bg-emerald-100">
-      {/* Top bar */}
+      {/* Top bar
       <header className="border-b border-slate-100 bg-white/80 backdrop-blur px-6 py-4 flex items-center justify-between gap-4 sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <div className="text-[10px] px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-bold uppercase tracking-wider">
@@ -144,7 +145,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </header>
+      </header> */}
 
       <main className="px-6 py-10 max-w-7xl mx-auto space-y-10">
         {/* Greeting */}
@@ -169,7 +170,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <p className="text-2xl font-black text-slate-900">
-              KES {monthlyTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              {subscriptions[0]?.currency ? getCurrencySymbol(subscriptions[0].currency) : 'KES'} {monthlyTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </p>
             <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600">
               <ArrowUpRight className="w-3 h-3" />
@@ -229,7 +230,7 @@ export default function DashboardPage() {
               </div>
               <div className="text-right">
                 <span className="text-[10px] font-bold text-slate-400 uppercase block">Limit</span>
-                <span className="font-black text-slate-900">KES 50,000</span>
+                <span className="font-black text-slate-900">{subscriptions[0]?.currency ? getCurrencySymbol(subscriptions[0].currency) : 'KES'} 50,000</span>
               </div>
             </div>
 
@@ -239,7 +240,7 @@ export default function DashboardPage() {
                   {Math.min(100, Math.round((monthlyTotal / 50000) * 100))}%
                 </span>
                 <span className="text-xs font-bold text-slate-400 uppercase">
-                  KES {monthlyTotal.toLocaleString()} utilized
+                  {subscriptions[0]?.currency ? getCurrencySymbol(subscriptions[0].currency) : 'KES'} {monthlyTotal.toLocaleString()} utilized
                 </span>
               </div>
               <div className="h-3 rounded-full bg-slate-100 overflow-hidden">
@@ -302,7 +303,7 @@ export default function DashboardPage() {
                             {sub.name}
                           </span>
                           <span className="text-[11px] text-slate-500 font-medium">
-                            {sub.billingCycle} · KES {sub.amount.toLocaleString()}
+                            {sub.billingCycle} · {getCurrencySymbol(sub.currency)} {sub.amount.toLocaleString()}
                           </span>
                         </div>
                       </div>
@@ -359,7 +360,7 @@ export default function DashboardPage() {
                       {cat.name}
                     </p>
                     <p className="text-xl font-black">
-                      KES {cat.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      {subscriptions[0]?.currency ? getCurrencySymbol(subscriptions[0].currency) : 'KES'} {cat.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </p>
                     <div className="w-full h-1 bg-slate-800/30 rounded-full mt-2 overflow-hidden">
                       <div className={`h-full bg-emerald-500/30 w-full`} />

@@ -34,6 +34,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { IconPicker, getIconUrl } from '@/components/icon-picker'
+import { DEFAULT_CURRENCY, getCurrencySymbol } from '@/lib/currencies'
 import type { Category } from '@prisma/client'
 import { createCategorySchema, updateCategorySchema } from '@/schemas'
 
@@ -308,7 +309,7 @@ export default function CategoriesPage() {
                 <p className="text-sm text-slate-600">
                   {categories.length} categories ·{' '}
                   {totalBudget > 0
-                    ? `KES ${totalBudget.toLocaleString()} monthly budget configured`
+                    ? `${getCurrencySymbol(DEFAULT_CURRENCY)} ${totalBudget.toLocaleString()} monthly budget configured`
                     : 'No budgets set yet'}
                 </p>
               </div>
@@ -384,7 +385,7 @@ export default function CategoriesPage() {
                           </div>
                           {category.budgetLimit && (
                             <p className="text-xs text-slate-500 mt-1">
-                              Budget: KES {category.budgetLimit.toLocaleString()}
+                              Budget: {getCurrencySymbol(DEFAULT_CURRENCY)} {category.budgetLimit.toLocaleString()}
                             </p>
                           )}
                         </div>

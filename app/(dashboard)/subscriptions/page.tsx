@@ -18,6 +18,7 @@ import {
   Search,
 } from 'lucide-react'
 import { LogoPicker, getLogoUrl } from '@/components/logo-picker'
+import { getCurrencyOptions, DEFAULT_CURRENCY } from '@/lib/currencies'
 
 import {
   Table,
@@ -82,7 +83,7 @@ export default function SubscriptionsPage() {
     defaultValues: {
       name: '',
       amount: 0,
-      currency: 'KES',
+      currency: DEFAULT_CURRENCY,
       billingCycle: 'monthly',
       customDays: undefined,
       nextBillingDate: '',
@@ -93,6 +94,8 @@ export default function SubscriptionsPage() {
       notes: '',
     },
   })
+
+  const currencyOptions = useMemo(() => getCurrencyOptions(), [])
 
  const editForm = useForm({
   resolver: zodResolver(updateSubscriptionSchema),
@@ -375,7 +378,17 @@ export default function SubscriptionsPage() {
                           <FormItem>
                             <FormLabel>Currency</FormLabel>
                             <FormControl>
-                              <Input placeholder="KES" {...field} />
+                              <select
+                                className="block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                                value={field.value}
+                                onChange={field.onChange}
+                              >
+                                {currencyOptions.map((c) => (
+                                  <option key={c.value} value={c.value}>
+                                    {c.label}
+                                  </option>
+                                ))}
+                              </select>
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -753,7 +766,17 @@ export default function SubscriptionsPage() {
                         <FormItem>
                           <FormLabel>Currency</FormLabel>
                           <FormControl>
-                            <Input {...field} />
+                            <select
+                              className="block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                              value={field.value}
+                              onChange={field.onChange}
+                            >
+                              {currencyOptions.map((c) => (
+                                <option key={c.value} value={c.value}>
+                                  {c.label}
+                                </option>
+                              ))}
+                            </select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>

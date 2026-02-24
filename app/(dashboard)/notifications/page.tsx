@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
+import { getCurrencySymbol } from '@/lib/currencies'
 import type { Notification } from '@prisma/client'
 import type { Subscription } from '@prisma/client'
 
@@ -232,7 +233,7 @@ export default function NotificationsPage() {
                               day: '2-digit',
                               month: 'short',
                             })}{' '}
-                            · KES {sub.amount.toLocaleString()}
+                            · {getCurrencySymbol(sub.currency)} {sub.amount.toLocaleString()}
                           </p>
                         )}
                       </div>

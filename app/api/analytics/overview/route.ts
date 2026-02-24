@@ -8,12 +8,16 @@ export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth()
 
-    const [subs, categories] = await Promise.all([
+    const [subs, categories, userData] = await Promise.all([
       prisma.subscription.findMany({
         where: { userId: user.id },
       }),
       prisma.category.findMany({
         where: { userId: user.id },
+      }),
+      prisma.user.findUnique({
+        where: { id: user.id },
+        select: { currency: true },
       }),
     ])
 
@@ -45,6 +49,7 @@ export async function GET(request: NextRequest) {
       avgPerSub,
       yearlyProjection,
       topCategory,
+      currency: userData?.currency,
     })
   } catch (err) {
     if (err instanceof Error && err.message === 'Unauthorized') {
