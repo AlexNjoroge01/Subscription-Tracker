@@ -1,11 +1,10 @@
-import { prisma} from '../prisma/client';
+import { prisma } from '../prisma/client';
 import {
     sendRenewalReminder,
     sendOverdueNotification,
     sendBudgetWarning,
 } from '../email/email-service';
-import { addDays, differenceInDays, startOfDay } from 'date-fns';
-
+import { addDays, differenceInDays, startOfDay, format } from 'date-fns';
 
 interface NotificationResult {
     notificationsCreated: number;
@@ -13,8 +12,16 @@ interface NotificationResult {
     errors: string[];
 }
 
+interface NotificationsSent {
+    [key: string]: string | undefined;
+    '7'?: string; // Date when 7-day reminder was sent (YYYY-MM-DD)
+    '3'?: string; // Date when 3-day reminder was sent (YYYY-MM-DD)
+    '1'?: string; // Date when 1-day reminder was sent (YYYY-MM-DD)
+}
+
 /**
  * Generate renewal reminder notifications for subscriptions due in 7, 3, or 1 day(s)
+ * Uses the notificationsSent field to track which reminders have been sent
  */
 export async function generateRenewalNotifications(): Promise<NotificationResult> {
     const result: NotificationResult = {
@@ -25,14 +32,16 @@ export async function generateRenewalNotifications(): Promise<NotificationResult
 
     try {
         const today = startOfDay(new Date());
-        const sevenDaysFromNow = addDays(today, 7);
-        const threeDaysFromNow = addDays(today, 3);
-        const oneDayFromNow = addDays(today, 1);
+        const todayStr = format(today, 'yyyy-MM-dd');
 
-        // Get all active subscriptions
+        // Get all active subscriptions with billing dates in the next 8 days
         const subscriptions = await prisma.subscription.findMany({
             where: {
                 status: 'active',
+                nextBillingDate: {
+                    lte: addDays(today, 8),
+                    gte: today,
+                },
             },
             include: {
                 user: true,
@@ -43,25 +52,17 @@ export async function generateRenewalNotifications(): Promise<NotificationResult
             const billingDate = startOfDay(subscription.nextBillingDate);
             const daysUntil = differenceInDays(billingDate, today);
 
-            // Check if this subscription is due in 7, 3, or 1 day(s)
+            // Only process 7, 3, or 1 day reminders
             if (daysUntil !== 7 && daysUntil !== 3 && daysUntil !== 1) {
                 continue;
             }
 
-            // Check if we've already sent a notification for this subscription today
-            const existingNotification = await prisma.notification.findFirst({
-                where: {
-                    userId: subscription.userId,
-                    subscriptionId: subscription.id,
-                    type: 'renewal_reminder',
-                    createdAt: {
-                        gte: today,
-                    },
-                },
-            });
+            const daysKey = String(daysUntil);
+            const notificationsSent = (subscription.notificationsSent as NotificationsSent) || {};
 
-            if (existingNotification) {
-                continue; // Skip if already notified today
+            // Check if we've already sent this specific reminder
+            if (notificationsSent[daysKey]) {
+                continue; // Skip if this reminder was already sent
             }
 
             // Create in-app notification
@@ -77,9 +78,11 @@ export async function generateRenewalNotifications(): Promise<NotificationResult
                 result.notificationsCreated++;
             } catch (error) {
                 result.errors.push(`Failed to create notification for subscription ${subscription.id}: ${error}`);
+                continue; // Don't update tracking if in-app notification failed
             }
 
             // Send email if user preferences allow
+            let emailSent = false;
             try {
                 const emailResult = await sendRenewalReminder(
                     subscription.user,
@@ -88,9 +91,27 @@ export async function generateRenewalNotifications(): Promise<NotificationResult
                 );
                 if (emailResult.success) {
                     result.emailsSent++;
+                    emailSent = true;
                 }
             } catch (error) {
                 result.errors.push(`Failed to send email for subscription ${subscription.id}: ${error}`);
+            }
+
+            // Update tracking - mark this reminder as sent (even if email failed, in-app was sent)
+            try {
+                const updatedNotificationsSent: NotificationsSent = {
+                    ...notificationsSent,
+                    [daysKey]: todayStr,
+                };
+
+                await prisma.subscription.update({
+                    where: { id: subscription.id },
+                    data: {
+                        notificationsSent: updatedNotificationsSent as Record<string, string>,
+                    },
+                });
+            } catch (error) {
+                result.errors.push(`Failed to update tracking for subscription ${subscription.id}: ${error}`);
             }
         }
     } catch (error) {
@@ -113,7 +134,7 @@ export async function generateOverdueNotifications(): Promise<NotificationResult
     try {
         const today = startOfDay(new Date());
 
-        // Get all subscriptions that are past their billing date
+        // Get all subscriptions that are past their billing date and still active
         const overdueSubscriptions = await prisma.subscription.findMany({
             where: {
                 status: 'active',
@@ -225,7 +246,7 @@ export async function generateBudgetWarnings(): Promise<NotificationResult> {
 
         for (const category of categories) {
             if (!category.budgetLimit) continue;
-            const budgetLimit = category.budgetLimit; // Now TypeScript knows it's number
+            const budgetLimit = category.budgetLimit;
 
             // Calculate total monthly spending for this category
             const monthlySpending = category.subscriptions.reduce((total, sub) => {
@@ -299,4 +320,21 @@ export async function generateBudgetWarnings(): Promise<NotificationResult> {
     }
 
     return result;
+}
+
+/**
+ * Reset notification tracking when a subscription is renewed
+ * This should be called when updating nextBillingDate after a payment
+ */
+export async function resetNotificationTracking(subscriptionId: string): Promise<void> {
+    try {
+        await prisma.subscription.update({
+            where: { id: subscriptionId },
+            data: {
+                notificationsSent: {},
+            },
+        });
+    } catch (error) {
+        console.error(`Failed to reset notification tracking for subscription ${subscriptionId}:`, error);
+    }
 }

@@ -85,6 +85,7 @@ model Subscription {
   familyMember    String?
   logo            String?
   notes           String?
+  notificationsSent Json?    // Tracks sent notifications: { "7": "2026-02-20", "3": "2026-02-24", "1": "2026-02-26" }
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
