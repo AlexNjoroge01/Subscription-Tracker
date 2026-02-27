@@ -5,6 +5,10 @@ import { Providers } from "./providers";
 import "./globals.css";
 import Script from "next/script";
 import { OrganizationJsonLd, WebApplicationJsonLd, HomepageFAQJsonLd } from "@/components/json-ld";
+import { initNotificationPolling } from "@/lib/notifications/init";
+
+// Initialize notification polling on server startup
+initNotificationPolling();
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
