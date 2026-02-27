@@ -71,15 +71,15 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="fixed inset-0 flex">
+        <div className="min-h-screen flex flex-col lg:flex-row">
             {/* Left Panel - Branding */}
-            <div className="w-1/2 bg-gradient-to-br from-emerald-500 to-emerald-600 p-12 lg:p-20 flex flex-col justify-between relative overflow-hidden">
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-500 to-emerald-600 p-12 lg:p-20 flex-col justify-between relative overflow-hidden">
                 {/* Decorative circles */}
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
                 <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] border border-white/10 rounded-full" />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-white/10 rounded-full" />
-                
+
                 {/* Logo */}
                 <div className="relative z-10">
                     <Link href="/" className="flex items-center gap-4">
@@ -122,14 +122,24 @@ export default function RegisterPage() {
             </div>
 
             {/* Right Panel - Register Form */}
-            <div className="w-1/2 p-12 lg:p-20 flex items-center justify-center bg-white overflow-y-auto">
+            <div className="w-full lg:w-1/2 px-6 py-12 sm:p-12 lg:p-20 flex items-center justify-center bg-white overflow-y-auto">
                 <div className="w-full max-w-lg">
+                    {/* Mobile Logo */}
+                    <div className="lg:hidden flex items-center justify-center gap-3 mb-10">
+                        <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <span className="text-2xl font-semibold text-slate-900">SubTrack</span>
+                    </div>
+
                     {/* Header */}
                     <div className="mb-10">
-                        <h2 className="font-heading text-4xl font-semibold text-slate-900 mb-4">
+                        <h2 className="font-heading text-3xl sm:text-4xl font-semibold text-slate-900 mb-4">
                             Create your account
                         </h2>
-                        <p className="text-slate-500 text-lg">
+                        <p className="text-slate-500 text-base sm:text-lg">
                             Enter your details to get started
                         </p>
                     </div>
@@ -261,7 +271,7 @@ export default function RegisterPage() {
 
                     {/* Footer */}
                     <div className="mt-10 text-center">
-                        <p className="text-slate-500 text-base">
+                        <p className="text-slate-500 text-sm sm:text-base">
                             Already have an account?{' '}
                             <Link href="/login" className="text-emerald-600 font-medium hover:text-emerald-700">
                                 Sign in
