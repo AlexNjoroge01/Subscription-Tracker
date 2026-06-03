@@ -4,30 +4,28 @@ import type { ReactNode } from 'react'
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import {
-  LayoutDashboard,
-  CreditCard,
-  FolderKanban,
-  BarChart3,
-  Settings,
-  LogOut,
-  Menu,
-  X,
-  Bell,
-  Crown,
-  Shield,
-  TrendingDown,
-  Receipt,
+  LayoutDashboard, CreditCard, FolderKanban, BarChart3,
+  Settings, LogOut, Menu, X, Bell, Crown, Shield,
+  TrendingDown, Receipt,
 } from 'lucide-react'
-import { signOut } from 'next-auth/react'
 import { DashboardNavbar } from '@/components/dashboard-navbar'
 
-function SidebarLink({
-  href,
-  label,
-  icon: Icon,
-  onClick,
+const BASE_NAV = [
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/categories', label: 'Categories', icon: FolderKanban },
+  { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
+  { href: '/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/optimize', label: 'Optimize', icon: TrendingDown },
+  { href: '/notifications', label: 'Notifications', icon: Bell },
+  { href: '/pricing', label: 'Upgrade', icon: Crown },
+  { href: '/payments', label: 'Payments', icon: Receipt },
+  { href: '/settings', label: 'Settings', icon: Settings },
+]
+
+function NavLink({
+  href, label, icon: Icon, onClick,
 }: {
   href: string
   label: string
@@ -41,135 +39,125 @@ function SidebarLink({
     <Link
       href={href}
       onClick={onClick}
-      className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
+      className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[13px] font-medium transition-all duration-200 group ${
         active
-          ? 'bg-emerald-50 text-emerald-700'
-          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          ? 'bg-[#a3e635]/10 text-[#a3e635] border border-[#a3e635]/20'
+          : 'text-white/45 hover:text-white/80 hover:bg-white/[0.05] border border-transparent'
       }`}
     >
-      <Icon className={`w-5 h-5 ${active ? 'text-emerald-500' : 'text-slate-400'}`} />
+      <Icon className={`w-4 h-4 shrink-0 transition-colors ${active ? 'text-[#a3e635]' : 'text-white/30 group-hover:text-white/60'}`} />
       <span>{label}</span>
+      {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#a3e635]" />}
     </Link>
   )
 }
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const { data: session } = useSession()
 
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen)
-
-  const baseNavLinks = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/categories', label: 'Categories', icon: FolderKanban },
-    { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
-    { href: '/analytics', label: 'Analytics', icon: BarChart3 },
-    { href: '/optimize', label: 'Optimize', icon: TrendingDown },
-    { href: '/notifications', label: 'Notifications', icon: Bell },
-    { href: '/pricing', label: 'Upgrade', icon: Crown },
-    { href: '/payments', label: 'Payments', icon: Receipt },
-    { href: '/settings', label: 'Settings', icon: Settings },
-  ]
-
-  // Add admin link for superusers
   const navLinks = session?.user?.role === 'SUPERUSER'
-    ? [...baseNavLinks, { href: '/admin', label: 'Admin', icon: Shield }]
-    : baseNavLinks
+    ? [...BASE_NAV, { href: '/admin', label: 'Admin', icon: Shield }]
+    : BASE_NAV
+
+  const userInitial = session?.user?.name?.charAt(0)?.toUpperCase() || 'U'
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white flex flex-col md:flex-row">
-      {/* Mobile Header */}
-      <header className="md:hidden flex items-center justify-between px-5 py-4 bg-white/80 backdrop-blur-lg border-b border-slate-100 sticky top-0 z-50">
-        <Link href="/dashboard" className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+    <div className="min-h-screen bg-[#070e08] flex flex-col md:flex-row">
+
+      {/* ── Mobile top bar ── */}
+      <header className="md:hidden flex items-center justify-between px-5 py-3.5 bg-[#060c08] border-b border-white/[0.06] sticky top-0 z-50">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-[#a3e635] rounded-[9px] flex items-center justify-center shadow-[0_0_12px_rgba(163,230,53,0.45)]">
+            <svg className="w-[17px] h-[17px] text-[#060c08]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <span className="text-lg font-semibold tracking-tight text-slate-900">
-            SubTrack
-          </span>
+          <span className="text-[16px] font-semibold text-white tracking-tight">SubTrack</span>
         </Link>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={toggleMobileMenu}
-            className="p-2 text-slate-500 hover:text-slate-900 transition-colors rounded-lg hover:bg-slate-100"
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
+        <button
+          onClick={() => setMobileOpen(v => !v)}
+          className="p-2 text-white/50 hover:text-white/80 transition-colors rounded-lg hover:bg-white/[0.05]"
+        >
+          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
       </header>
 
-      {/* Mobile Sidebar Overlay */}
-      {isMobileMenuOpen && (
+      {/* Mobile overlay */}
+      {mobileOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 md:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setMobileOpen(false)}
         />
       )}
 
-      {/* Sidebar (Desktop & Mobile) */}
+      {/* ── Sidebar ── */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 px-5 py-6 flex flex-col gap-6 transition-transform duration-300 ease-in-out shadow-xl shadow-slate-200/50 md:shadow-none
+        fixed inset-y-0 left-0 z-50 w-64 bg-[#060c08] border-r border-white/[0.06]
+        flex flex-col transition-transform duration-300 ease-in-out
         md:sticky md:top-0 md:h-screen md:translate-x-0 md:flex
-        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Logo */}
-        <div className="flex items-center justify-between px-1">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25">
-              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        <div className="flex items-center justify-between px-5 py-5 border-b border-white/[0.06]">
+          <Link href="/dashboard" className="flex items-center gap-2.5" onClick={() => setMobileOpen(false)}>
+            <div className="w-8 h-8 bg-[#a3e635] rounded-[9px] flex items-center justify-center shadow-[0_0_14px_rgba(163,230,53,0.5)]">
+              <svg className="w-[17px] h-[17px] text-[#060c08]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <div className="flex flex-col">
-              <span className="text-lg font-semibold tracking-tight text-slate-900">
-                SubTrack
-              </span>
-              <span className="text-xs text-slate-400">
-                Subscription Manager
-              </span>
+            <div>
+              <p className="text-[15px] font-bold text-white leading-tight">SubTrack</p>
+              <p className="text-[10px] text-white/30 font-medium leading-tight">Subscription Manager</p>
             </div>
           </Link>
           <button
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="md:hidden p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
+            onClick={() => setMobileOpen(false)}
+            className="md:hidden p-1.5 text-white/40 hover:text-white/70 rounded-lg hover:bg-white/[0.05] transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex flex-col gap-1 flex-1">
-          <p className="px-4 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-            Menu
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5 overflow-y-auto">
+          <p className="px-3.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/20 mb-3">
+            Navigation
           </p>
-          {navLinks.map((link) => (
-            <SidebarLink
-              key={link.href}
-              {...link}
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
+          {navLinks.map(link => (
+            <NavLink key={link.href} {...link} onClick={() => setMobileOpen(false)} />
           ))}
         </nav>
 
-        {/* Logout */}
-        <div className="pt-4 border-t border-slate-100">
+        {/* User + logout */}
+        <div className="px-3 py-4 border-t border-white/[0.06] space-y-1">
+          {session?.user && (
+            <div className="flex items-center gap-3 px-3.5 py-3 rounded-xl">
+              <div className="w-8 h-8 rounded-full bg-[#a3e635]/15 border border-[#a3e635]/25 flex items-center justify-center text-[#a3e635] text-[13px] font-bold shrink-0">
+                {userInitial}
+              </div>
+              <div className="min-w-0">
+                <p className="text-[13px] font-semibold text-white truncate">{session.user.name || 'User'}</p>
+                <p className="text-[11px] text-white/35 truncate">{session.user.email}</p>
+              </div>
+            </div>
+          )}
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 hover:text-red-600 hover:bg-red-50 transition-all duration-200 group"
+            className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-[13px] font-medium text-white/40 hover:text-red-400 hover:bg-red-500/[0.08] transition-all duration-200 group"
           >
-            <LogOut className="w-5 h-5 text-slate-400 group-hover:text-red-500" />
-            <span>Sign out</span>
+            <LogOut className="w-4 h-4 text-white/25 group-hover:text-red-400 transition-colors" />
+            Sign out
           </button>
         </div>
       </aside>
 
-      {/* Main area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* ── Main content ── */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         <DashboardNavbar />
-        {children}
+        <main className="flex-1 bg-[#070e08]">
+          {children}
+        </main>
       </div>
     </div>
   )

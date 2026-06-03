@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
@@ -111,22 +111,22 @@ export default function NotificationsPage() {
   const displayName = session?.user?.name || 'User'
 
   return (
-    <div className="flex-1 bg-[#FAFAFA] text-slate-900 selection:bg-emerald-100">
+    <div className="flex-1 bg-[#070e08] text-white selection:bg-[#a3e635]/15">
       <main className="px-6 py-10 max-w-5xl mx-auto space-y-8">
         <section className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-md bg-slate-900 text-amber-300 text-[10px] font-bold uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-md bg-[#0d1b0f] text-amber-300 text-[10px] font-bold uppercase tracking-widest">
             <Bell className="w-3 h-3" />
             Signal Feed
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 leading-none">
+          <h1 className="text-3xl font-black tracking-tight text-white leading-none">
             Notifications for {displayName.split(' ')[0]}
           </h1>
-          <p className="text-slate-500 font-light text-sm">
+          <p className="text-white/45 font-light text-sm">
             Upcoming renewals, budget warnings, and optimization prompts in one focused stream.
           </p>
         </section>
 
-        <Card className="bg-white border-slate-100 p-5 flex flex-col gap-4 shadow-sm rounded-2xl">
+        <Card className="bg-[#0d1b0f] border-white/[0.06] p-5 flex flex-col gap-4 shadow-sm rounded-2xl">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <Tabs
               value={tab}
@@ -151,7 +151,7 @@ export default function NotificationsPage() {
               <Button
                 variant="outline"
                 size="icon-sm"
-                className="text-slate-400"
+                className="text-white/35"
                 disabled
                 title="Type filters coming soon"
               >
@@ -161,16 +161,16 @@ export default function NotificationsPage() {
           </div>
 
           {isLoading ? (
-            <p className="text-xs text-slate-500 italic">Loading notification feed…</p>
+            <p className="text-xs text-white/45 italic">Loading notification feed…</p>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                <Clock3 className="w-6 h-6 text-slate-400" />
+              <div className="w-12 h-12 rounded-2xl bg-white/[0.04] flex items-center justify-center">
+                <Clock3 className="w-6 h-6 text-white/35" />
               </div>
-              <p className="text-sm font-semibold text-slate-900">
+              <p className="text-sm font-semibold text-white">
                 No notifications to review.
               </p>
-              <p className="text-xs text-slate-500 max-w-xs">
+              <p className="text-xs text-white/45 max-w-xs">
                 As your renewals and budgets approach key thresholds, alerts will surface here.
               </p>
             </div>
@@ -197,20 +197,20 @@ export default function NotificationsPage() {
                     className={cn(
                       'w-full text-left rounded-2xl border px-4 py-3 flex items-start justify-between gap-3 transition-colors',
                       isUnread
-                        ? 'bg-emerald-50/70 border-emerald-100 hover:bg-emerald-50'
-                        : 'bg-slate-50 border-slate-100 hover:bg-white',
+                        ? 'bg-[#a3e635]/10/70 border-[#a3e635]/15 hover:bg-[#b5f542]/10'
+                        : 'bg-[#0a1409] border-white/[0.06] hover:bg-[#0d1b0f]',
                     )}
                   >
                     <div className="flex items-start gap-3">
                       <div
                         className={cn(
                           'mt-1 w-2 h-2 rounded-full',
-                          isUnread ? 'bg-emerald-500' : 'bg-slate-300',
+                          isUnread ? 'bg-[#a3e635]' : 'bg-slate-300',
                         )}
                       />
                       <div className="space-y-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-sm font-semibold text-slate-900">
+                          <span className="text-sm font-semibold text-white">
                             {sub?.name ?? 'Subscription'}
                           </span>
                           <Badge
@@ -220,11 +220,11 @@ export default function NotificationsPage() {
                             {typeLabel}
                           </Badge>
                         </div>
-                        <p className="text-xs text-slate-600">
+                        <p className="text-xs text-white/65">
                           {n.message}
                         </p>
                         {sub && (
-                          <p className="text-[11px] text-slate-400">
+                          <p className="text-[11px] text-white/35">
                             Next billing{' '}
                             {new Date(
                               sub.nextBillingDate as unknown as Date,
@@ -237,7 +237,7 @@ export default function NotificationsPage() {
                         )}
                       </div>
                     </div>
-                    <span className="text-[10px] text-slate-400 whitespace-nowrap">
+                    <span className="text-[10px] text-white/35 whitespace-nowrap">
                       {created.toLocaleDateString('en-GB', {
                         day: '2-digit',
                         month: 'short',

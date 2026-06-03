@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
@@ -124,23 +124,23 @@ export default function DashboardPage() {
   const displayName = session?.user?.name || 'Demo User'
 
   return (
-    <div className="flex-1 bg-[#FAFAFA] text-slate-900 selection:bg-emerald-100">
+    <div className="flex-1 bg-[#070e08] text-white selection:bg-[#a3e635]/15">
       {/* Top bar
-      <header className="border-b border-slate-100 bg-white/80 backdrop-blur px-6 py-4 flex items-center justify-between gap-4 sticky top-0 z-10">
+      <header className="border-b border-white/[0.06] bg-[#0d1b0f]/80 backdrop-blur px-6 py-4 flex items-center justify-between gap-4 sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <div className="text-[10px] px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-bold uppercase tracking-wider">
+          <div className="text-[10px] px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-400/30 font-bold uppercase tracking-wider">
             Live Intelligence Mode
           </div>
         </div>
         <div className="flex items-center gap-4 text-xs">
           <NotificationBell />
-          <div className="flex items-center gap-2 rounded-full bg-slate-900 text-white px-3 py-1.5 shadow-lg shadow-slate-900/10">
-            <div className="w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center text-[10px] font-black italic">
+          <div className="flex items-center gap-2 rounded-full bg-[#0d1b0f] text-white px-3 py-1.5 shadow-lg shadow-black/30">
+            <div className="w-7 h-7 rounded-full bg-[#a3e635] flex items-center justify-center text-[10px] font-black italic">
               {displayName.charAt(0)}
             </div>
             <div className="flex flex-col leading-tight">
               <span className="text-[11px] font-bold">{displayName}</span>
-              <span className="text-[9px] text-slate-400 font-medium uppercase tracking-tighter">Command</span>
+              <span className="text-[9px] text-white/35 font-medium uppercase tracking-tighter">Command</span>
             </div>
           </div>
         </div>
@@ -149,103 +149,103 @@ export default function DashboardPage() {
       <main className="px-6 py-10 max-w-7xl mx-auto space-y-10">
         {/* Greeting */}
         <section className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-md bg-[#a3e635]/10 text-[#a3e635] text-[10px] font-bold uppercase tracking-widest">
             <Zap className="w-3 h-3 fill-emerald-700" />
             Financial Audit Active
           </div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 leading-none">
-            Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">{displayName.split(' ')[0]}</span>.
+          <h1 className="text-4xl font-black tracking-tight text-white leading-none">
+            Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#a3e635] to-[#84cc16]">{displayName.split(' ')[0]}</span>.
           </h1>
-          <p className="text-slate-500 font-light text-lg">Your digital overhead is currently under oversight.</p>
+          <p className="text-white/45 font-light text-lg">Your digital overhead is currently under oversight.</p>
         </section>
 
         {/* KPIs row */}
         <section className="grid md:grid-cols-4 gap-6">
-          <Card className="bg-white border-slate-100 p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
-            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <Card className="bg-[#0d1b0f] border-white/[0.06] p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
+            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/35">
               <span>Monthly Burn</span>
-              <div className="p-1.5 bg-emerald-50 rounded-lg">
-                <Wallet className="w-4 h-4 text-emerald-600" />
+              <div className="p-1.5 bg-[#a3e635]/10 rounded-lg">
+                <Wallet className="w-4 h-4 text-[#a3e635]" />
               </div>
             </div>
-            <p className="text-2xl font-black text-slate-900">
+            <p className="text-2xl font-black text-white">
               {subscriptions[0]?.currency ? getCurrencySymbol(subscriptions[0].currency) : 'KES'} {monthlyTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </p>
-            <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600">
+            <div className="flex items-center gap-1 text-[11px] font-bold text-[#a3e635]">
               <ArrowUpRight className="w-3 h-3" />
               <span>Optimized Flow</span>
             </div>
           </Card>
 
-          <Card className="bg-slate-900 border-slate-800 p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow rounded-2xl text-white">
-            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-300">
+          <Card className="bg-[#0d1b0f] border-white/[0.08] p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow rounded-2xl text-white">
+            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/55">
               <span>Active Assets</span>
-              <div className="p-1.5 bg-blue-900/40 rounded-lg">
+              <div className="p-1.5 bg-blue-400/10 rounded-lg">
                 <CreditCard className="w-4 h-4 text-blue-400" />
               </div>
             </div>
             <p className="text-2xl font-black text-white">{activeCount}</p>
-            <p className="text-[11px] font-medium text-slate-400">Recurring Services</p>
+            <p className="text-[11px] font-medium text-white/35">Recurring Services</p>
           </Card>
 
-          <Card className="bg-white border-slate-100 p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
-            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <Card className="bg-[#0d1b0f] border-white/[0.06] p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow rounded-2xl">
+            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/35">
               <span>Top Category</span>
-              <div className="p-1.5 bg-purple-50 rounded-lg">
-                <ArrowUpRight className="w-4 h-4 text-purple-600" />
+              <div className="p-1.5 bg-purple-500/10 rounded-lg">
+                <ArrowUpRight className="w-4 h-4 text-purple-400" />
               </div>
             </div>
-            <p className="text-lg font-black text-slate-900 truncate">
+            <p className="text-lg font-black text-white truncate">
               {topCategory?.name ?? 'No Data'}
             </p>
-            <p className="text-[11px] font-medium text-slate-400">Primary Concentration</p>
+            <p className="text-[11px] font-medium text-white/35">Primary Concentration</p>
           </Card>
 
-          <Card className="bg-slate-900 border-slate-800 p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow rounded-2xl border-l-4 border-l-amber-400 text-white">
-            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-300">
+          <Card className="bg-[#0d1b0f] border-white/[0.08] p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow rounded-2xl border-l-4 border-l-amber-400 text-white">
+            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/55">
               <span>Next Renewal</span>
-              <div className="p-1.5 bg-amber-900/40 rounded-lg">
+              <div className="p-1.5 bg-amber-400/10 rounded-lg">
                 <CalendarDays className="w-4 h-4 text-amber-400" />
               </div>
             </div>
             <p className="text-sm font-black text-white uppercase">
               {nextRenewalLabel}
             </p>
-            <p className="text-[11px] font-medium text-slate-400">Strategic Alert</p>
+            <p className="text-[11px] font-medium text-white/35">Strategic Alert</p>
           </Card>
         </section>
 
         {/* Budget & upcoming renewals */}
         <section className="grid lg:grid-cols-2 gap-6">
-          <Card className="bg-white border-slate-100 p-8 flex flex-col gap-6 shadow-sm rounded-[32px]">
+          <Card className="bg-[#0d1b0f] border-white/[0.06] p-8 flex flex-col gap-6 shadow-sm rounded-[32px]">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
+                <h3 className="text-xs font-black uppercase tracking-widest text-white/35">
                   Monthly Ceiling
                 </h3>
-                <p className="text-sm text-slate-500 font-light">
+                <p className="text-sm text-white/45 font-light">
                   Capital retention vs. target burn.
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Limit</span>
-                <span className="font-black text-slate-900">{subscriptions[0]?.currency ? getCurrencySymbol(subscriptions[0].currency) : 'KES'} 50,000</span>
+                <span className="text-[10px] font-bold text-white/35 uppercase block">Limit</span>
+                <span className="font-black text-white">{subscriptions[0]?.currency ? getCurrencySymbol(subscriptions[0].currency) : 'KES'} 50,000</span>
               </div>
             </div>
 
             <div className="space-y-3">
               <div className="flex justify-between items-end">
-                <span className="text-2xl font-black text-slate-900">
+                <span className="text-2xl font-black text-white">
                   {Math.min(100, Math.round((monthlyTotal / 50000) * 100))}%
                 </span>
-                <span className="text-xs font-bold text-slate-400 uppercase">
+                <span className="text-xs font-bold text-white/35 uppercase">
                   {subscriptions[0]?.currency ? getCurrencySymbol(subscriptions[0].currency) : 'KES'} {monthlyTotal.toLocaleString()} utilized
                 </span>
               </div>
-              <div className="h-3 rounded-full bg-slate-100 overflow-hidden">
+              <div className="h-3 rounded-full bg-white/[0.04] overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-1000 ${
-                    monthlyTotal > 50000 ? 'bg-red-500' : 'bg-emerald-500'
+                    monthlyTotal > 50000 ? 'bg-red-400/100' : 'bg-[#a3e635]'
                   }`}
                   style={{
                     width: `${Math.min(100, (monthlyTotal / 50000) * 100)}%`,
@@ -255,7 +255,7 @@ export default function DashboardPage() {
               <Badge
                 variant={monthlyTotal > 50000 ? 'destructive' : 'secondary'}
                 className={`mt-2 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-lg ${
-                  monthlyTotal <= 50000 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : ''
+                  monthlyTotal <= 50000 ? 'bg-[#a3e635]/10 text-[#a3e635] border-[#a3e635]/15' : ''
                 }`}
               >
                 {monthlyTotal > 50000
@@ -265,22 +265,22 @@ export default function DashboardPage() {
             </div>
           </Card>
 
-          <Card className="bg-slate-900 text-white p-8 flex flex-col gap-6 shadow-xl rounded-[32px] border-none relative overflow-hidden">
+          <Card className="bg-[#0d1b0f] text-white p-8 flex flex-col gap-6 shadow-xl rounded-[32px] border-none relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-5">
               <Zap className="w-32 h-32" />
             </div>
             <div className="relative z-10">
-              <h3 className="text-xs font-black uppercase tracking-widest text-emerald-400">
+              <h3 className="text-xs font-black uppercase tracking-widest text-[#a3e635]">
                 Renewal Pipeline
               </h3>
-              <p className="text-sm text-slate-400 font-light">
+              <p className="text-sm text-white/35 font-light">
                 Impending charges in the next 7 days.
               </p>
             </div>
 
             <div className="space-y-3 relative z-10">
               {isLoading || !subscriptions.length ? (
-                <p className="text-xs text-slate-500 italic">
+                <p className="text-xs text-white/45 italic">
                   {isLoading ? 'Scanning records...' : 'No upcoming financial leaks detected.'}
                 </p>
               ) : (
@@ -291,24 +291,24 @@ export default function DashboardPage() {
                   .map((sub) => (
                     <div
                       key={sub.id}
-                      className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-800/40 p-4 hover:bg-slate-800/60 transition-colors group"
+                      className="flex items-center justify-between rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 hover:bg-white/[0.04] transition-colors group"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-sm font-black group-hover:scale-110 transition-transform">
+                        <div className="w-10 h-10 rounded-xl bg-[#a3e635]/15 text-[#a3e635] flex items-center justify-center text-sm font-black group-hover:scale-110 transition-transform">
                           {sub.name.charAt(0)}
                         </div>
                         <div className="flex flex-col">
                           <span className="text-sm font-bold text-white tracking-tight">
                             {sub.name}
                           </span>
-                          <span className="text-[11px] text-slate-500 font-medium">
+                          <span className="text-[11px] text-white/45 font-medium">
                             {sub.billingCycle} · {getCurrencySymbol(sub.currency)} {sub.amount.toLocaleString()}
                           </span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="text-[10px] font-black text-emerald-500 uppercase block">Due</span>
-                        <span className="text-xs font-bold text-slate-300">
+                        <span className="text-[10px] font-black text-[#a3e635] uppercase block">Due</span>
+                        <span className="text-xs font-bold text-white/55">
                           {new Date(sub.nextBillingDate as unknown as Date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
                         </span>
                       </div>
@@ -323,17 +323,17 @@ export default function DashboardPage() {
         <section className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
+              <h3 className="text-xs font-black uppercase tracking-widest text-white/35">
                 Capital Distribution
               </h3>
-              <p className="text-sm text-slate-500 font-light">
+              <p className="text-sm text-white/45 font-light">
                 Structural breakdown of your recurring liquidity.
               </p>
             </div>
           </div>
           <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
             {categoryBreakdown.length === 0 ? (
-              <p className="text-xs text-slate-500 italic">
+              <p className="text-xs text-white/45 italic">
                 Awaiting data to generate distribution insights.
               </p>
             ) : (
@@ -343,17 +343,17 @@ export default function DashboardPage() {
                 return (
                   <Card
                     key={cat.name}
-                    className={`border-slate-100 p-5 flex flex-col gap-2 shadow-sm hover:border-emerald-200 transition-colors rounded-2xl group ${
+                    className={`border-white/[0.06] p-5 flex flex-col gap-2 shadow-sm hover:border-[#a3e635]/20 transition-colors rounded-2xl group ${
                       isDark
-                        ? 'bg-slate-900 text-white border-slate-800 hover:border-emerald-500/50'
-                        : 'bg-white text-slate-900'
+                        ? 'bg-[#0d1b0f] text-white border-white/[0.08] hover:border-[#a3e635]/35'
+                        : 'bg-[#0d1b0f] text-white'
                     }`}
                   >
                     <p
                       className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${
                         isDark
-                          ? 'text-slate-300 group-hover:text-emerald-400'
-                          : 'text-slate-400 group-hover:text-emerald-600'
+                          ? 'text-white/55 group-hover:text-[#a3e635]'
+                          : 'text-white/35 group-hover:text-[#a3e635]'
                       }`}
                     >
                       {cat.name}
@@ -361,8 +361,8 @@ export default function DashboardPage() {
                     <p className="text-xl font-black">
                       {subscriptions[0]?.currency ? getCurrencySymbol(subscriptions[0].currency) : 'KES'} {cat.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </p>
-                    <div className="w-full h-1 bg-slate-800/30 rounded-full mt-2 overflow-hidden">
-                      <div className={`h-full bg-emerald-500/30 w-full`} />
+                    <div className="w-full h-1 bg-[#0d1b0f]/[0.03] rounded-full mt-2 overflow-hidden">
+                      <div className={`h-full bg-[#a3e635]/20 w-full`} />
                     </div>
                   </Card>
                 )

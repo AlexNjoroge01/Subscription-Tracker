@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -375,8 +375,8 @@ export default function SubscriptionsPage() {
 
   const statusDotColor = (status: string | null | undefined) => {
     switch (status) {
-      case 'active': return 'bg-emerald-500'
-      case 'overdue': return 'bg-red-500'
+      case 'active': return 'bg-[#a3e635]'
+      case 'overdue': return 'bg-red-400/100'
       case 'scheduled': return 'bg-amber-400'
       case 'cancelled': return 'bg-slate-400'
       default: return 'bg-slate-300'
@@ -390,20 +390,20 @@ export default function SubscriptionsPage() {
     day === todayDay && calendarMonth === todayMonth && calendarYear === todayYear
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] px-6 py-10">
+    <div className="min-h-screen bg-[#070e08] px-6 py-10">
       <div className="max-w-6xl mx-auto space-y-8">
         <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900">
+            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
               Subscriptions
             </h1>
-            <p className="text-slate-500 mt-2">
+            <p className="text-white/45 mt-2">
               Centralize every recurring charge in one audit-ready dashboard.
             </p>
           </div>
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto">
             <div className="relative flex-1 md:w-64">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-white/35 absolute left-3 top-1/2 -translate-y-1/2" />
               <Input
                 placeholder="Search by name, member, category..."
                 className="pl-9"
@@ -422,7 +422,7 @@ export default function SubscriptionsPage() {
             </Button>
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+                <Button className="gap-2 bg-[#a3e635] hover:bg-[#b5f542]">
                   <Plus className="w-4 h-4" />
                   Add Subscription
                 </Button>
@@ -483,7 +483,7 @@ export default function SubscriptionsPage() {
                             <FormLabel>Currency</FormLabel>
                             <FormControl>
                               <select
-                                className="block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                                className="block w-full rounded-md border border-white/[0.08] bg-[#0d1b0f] px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                                 value={field.value}
                                 onChange={field.onChange}
                               >
@@ -508,7 +508,7 @@ export default function SubscriptionsPage() {
                             <FormLabel>Billing Cycle</FormLabel>
                             <FormControl>
                               <select
-                                className="block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                                className="block w-full rounded-md border border-white/[0.08] bg-[#0d1b0f] px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                                 value={field.value}
                                 onChange={field.onChange}
                               >
@@ -529,7 +529,7 @@ export default function SubscriptionsPage() {
                             <FormLabel>Next Billing Date</FormLabel>
                             <FormControl>
                               <div className="relative">
-                                <CalendarDays className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <CalendarDays className="w-4 h-4 text-white/35 absolute left-3 top-1/2 -translate-y-1/2" />
                                 <Input
                                   type="date"
                                   className="pl-9"
@@ -551,9 +551,9 @@ export default function SubscriptionsPage() {
                             <FormLabel>Category</FormLabel>
                             <FormControl>
                               <div className="relative">
-                                <Tag className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <Tag className="w-4 h-4 text-white/35 absolute left-3 top-1/2 -translate-y-1/2" />
                                 <select
-                                  className="block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm pl-9 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                                  className="block w-full rounded-md border border-white/[0.08] bg-[#0d1b0f] px-3 py-2 text-sm pl-9 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                                   value={field.value || ''}
                                   onChange={(e) =>
                                     field.onChange(e.target.value || undefined)
@@ -580,7 +580,7 @@ export default function SubscriptionsPage() {
                             <FormLabel>Family Member</FormLabel>
                             <FormControl>
                               <div className="relative">
-                                <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <User className="w-4 h-4 text-white/35 absolute left-3 top-1/2 -translate-y-1/2" />
                                 <Input
                                   placeholder="Who uses this?"
                                   className="pl-9"
@@ -606,7 +606,7 @@ export default function SubscriptionsPage() {
                               serviceName={form.watch('name')}
                             />
                           </FormControl>
-                          <p className="text-xs text-slate-500 mt-1">
+                          <p className="text-xs text-white/45 mt-1">
                             Select from popular services or use a custom logo URL
                           </p>
                           <FormMessage />
@@ -631,7 +631,7 @@ export default function SubscriptionsPage() {
                     />
                     <Button
                       type="submit"
-                      className="w-full gap-2 bg-slate-900 hover:bg-emerald-600"
+                      className="w-full gap-2 bg-[#0d1b0f] hover:bg-[#b5f542]"
                       disabled={isSubmitting}
                     >
                       {isSubmitting && (
@@ -647,7 +647,7 @@ export default function SubscriptionsPage() {
           </div>
         </header>
 
-        <Card className="p-4 md:p-6 shadow-2xl shadow-slate-200/60 border-slate-100 bg-white space-y-4">
+        <Card className="p-4 md:p-6 shadow-2xl shadow-black/30 border-white/[0.06] bg-[#0d1b0f] space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <Tabs
               value={statusFilter}
@@ -664,11 +664,11 @@ export default function SubscriptionsPage() {
               </TabsList>
               <TabsContent value={statusFilter} />
             </Tabs>
-            <div className="flex items-center gap-1 border border-slate-200 rounded-lg p-1 self-start sm:self-auto">
+            <div className="flex items-center gap-1 border border-white/[0.08] rounded-lg p-1 self-start sm:self-auto">
               <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
                 size="sm"
-                className={`gap-1.5 h-7 px-2 ${viewMode === 'list' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900'}`}
+                className={`gap-1.5 h-7 px-2 ${viewMode === 'list' ? 'bg-[#0d1b0f] text-white hover:bg-[#0d1b0f]/[0.05]' : 'text-white/45 hover:text-white'}`}
                 onClick={() => setViewMode('list')}
               >
                 <List className="w-3.5 h-3.5" />
@@ -677,7 +677,7 @@ export default function SubscriptionsPage() {
               <Button
                 variant={viewMode === 'calendar' ? 'default' : 'ghost'}
                 size="sm"
-                className={`gap-1.5 h-7 px-2 ${viewMode === 'calendar' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900'}`}
+                className={`gap-1.5 h-7 px-2 ${viewMode === 'calendar' ? 'bg-[#0d1b0f] text-white hover:bg-[#0d1b0f]/[0.05]' : 'text-white/45 hover:text-white'}`}
                 onClick={() => setViewMode('calendar')}
               >
                 <Calendar className="w-3.5 h-3.5" />
@@ -687,7 +687,7 @@ export default function SubscriptionsPage() {
           </div>
 
           {isLoading ? (
-            <div className="flex items-center justify-center py-10 gap-3 text-slate-500">
+            <div className="flex items-center justify-center py-10 gap-3 text-white/45">
               <Loader2 className="w-5 h-5 animate-spin" />
               <span className="text-sm font-medium">
                 Loading your subscriptions...
@@ -696,13 +696,13 @@ export default function SubscriptionsPage() {
           ) : viewMode === 'list' ? (
             filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                  <CalendarDays className="w-6 h-6 text-slate-400" />
+                <div className="w-12 h-12 rounded-2xl bg-white/[0.04] flex items-center justify-center">
+                  <CalendarDays className="w-6 h-6 text-white/35" />
                 </div>
-                <h2 className="text-lg font-semibold text-slate-900">
+                <h2 className="text-lg font-semibold text-white">
                   No subscriptions yet
                 </h2>
-                <p className="text-slate-500 text-sm max-w-sm">
+                <p className="text-white/45 text-sm max-w-sm">
                   Start by logging your first recurring charge. We&apos;ll keep
                   every renewal on your radar.
                 </p>
@@ -750,16 +750,16 @@ export default function SubscriptionsPage() {
                             className="w-8 h-8 rounded-xl object-cover"
                           />
                         ) : (
-                          <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center text-xs font-bold">
+                          <div className="w-8 h-8 rounded-xl bg-[#0d1b0f] text-white flex items-center justify-center text-xs font-bold">
                             {sub.name.charAt(0).toUpperCase()}
                           </div>
                         )}
                         <div>
-                          <p className="font-medium text-sm text-slate-900">
+                          <p className="font-medium text-sm text-white">
                             {sub.name}
                           </p>
                           {sub.notes && (
-                            <p className="text-xs text-slate-400">{sub.notes}</p>
+                            <p className="text-xs text-white/35">{sub.notes}</p>
                           )}
                         </div>
                       </TableCell>
@@ -773,18 +773,18 @@ export default function SubscriptionsPage() {
                             {sub.category.name}
                           </Badge>
                         ) : (
-                          <span className="text-xs text-slate-400">Unassigned</span>
+                          <span className="text-xs text-white/35">Unassigned</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-slate-700">
+                      <TableCell className="text-sm text-white/80">
                         {sub.familyMember || (
-                          <span className="text-slate-400 text-xs">—</span>
+                          <span className="text-white/35 text-xs">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-sm font-semibold text-slate-900">
+                      <TableCell className="text-sm font-semibold text-white">
                         {formatCurrency(sub.amount, sub.currency)}
                       </TableCell>
-                      <TableCell className="text-sm text-slate-700">
+                      <TableCell className="text-sm text-white/80">
                         <div className="flex flex-col gap-1">
                           <span>{formatDate(sub.nextBillingDate as unknown as Date)}</span>
                           {label && (
@@ -811,7 +811,7 @@ export default function SubscriptionsPage() {
                             <Button
                               variant="ghost"
                               size="icon-sm"
-                              className="text-slate-500 hover:text-slate-900"
+                              className="text-white/45 hover:text-white"
                             >
                               <MoreHorizontal className="w-4 h-4" />
                             </Button>
@@ -841,23 +841,23 @@ export default function SubscriptionsPage() {
             <div className="space-y-4">
               {/* Calendar header: month navigation */}
               <div className="flex items-center justify-between">
-                <Button variant="ghost" size="sm" onClick={prevMonth} className="gap-1 text-slate-600">
+                <Button variant="ghost" size="sm" onClick={prevMonth} className="gap-1 text-white/65">
                   <ChevronLeft className="w-4 h-4" />
                   Prev
                 </Button>
-                <h2 className="text-base font-semibold text-slate-900">
+                <h2 className="text-base font-semibold text-white">
                   {MONTH_NAMES[calendarMonth]} {calendarYear}
                 </h2>
-                <Button variant="ghost" size="sm" onClick={nextMonth} className="gap-1 text-slate-600">
+                <Button variant="ghost" size="sm" onClick={nextMonth} className="gap-1 text-white/65">
                   Next
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
 
               {/* Legend */}
-              <div className="flex items-center gap-4 flex-wrap text-xs text-slate-500">
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />Active</span>
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" />Overdue</span>
+              <div className="flex items-center gap-4 flex-wrap text-xs text-white/45">
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#a3e635] inline-block" />Active</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-400/100 inline-block" />Overdue</span>
                 <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block" />Scheduled</span>
                 <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block" />Cancelled</span>
               </div>
@@ -865,29 +865,29 @@ export default function SubscriptionsPage() {
               {/* Day-of-week headers */}
               <div className="grid grid-cols-7 gap-px">
                 {DAYS_OF_WEEK.map((day) => (
-                  <div key={day} className="text-center text-xs font-medium text-slate-400 py-2">
+                  <div key={day} className="text-center text-xs font-medium text-white/35 py-2">
                     {day}
                   </div>
                 ))}
               </div>
 
               {/* Calendar grid: 6 rows x 7 cols */}
-              <div className="grid grid-cols-7 gap-px bg-slate-100 border border-slate-100 rounded-xl overflow-hidden">
+              <div className="grid grid-cols-7 gap-px bg-white/[0.04] border border-white/[0.06] rounded-xl overflow-hidden">
                 {calendarCells.map((day, idx) => {
                   const subs = day !== null ? (subscriptionsByDay[day] ?? []) : []
                   const today = day !== null && isToday(day)
                   return (
                     <div
                       key={idx}
-                      className={`bg-white min-h-[72px] p-1.5 flex flex-col ${day === null ? 'opacity-0 pointer-events-none' : ''}`}
+                      className={`bg-[#0d1b0f] min-h-[72px] p-1.5 flex flex-col ${day === null ? 'opacity-0 pointer-events-none' : ''}`}
                     >
                       {day !== null && (
                         <>
                           <span
                             className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${
                               today
-                                ? 'bg-emerald-600 text-white'
-                                : 'text-slate-600'
+                                ? 'bg-[#a3e635] text-white'
+                                : 'text-white/65'
                             }`}
                           >
                             {day}
@@ -902,13 +902,13 @@ export default function SubscriptionsPage() {
                                 <span
                                   className={`w-2 h-2 rounded-full flex-shrink-0 ${statusDotColor(sub.status)}`}
                                 />
-                                <span className="text-[10px] text-slate-600 truncate leading-tight">
+                                <span className="text-[10px] text-white/65 truncate leading-tight">
                                   {sub.name}
                                 </span>
                               </div>
                             ))}
                             {subs.length > 3 && (
-                              <span className="text-[10px] text-slate-400">
+                              <span className="text-[10px] text-white/35">
                                 +{subs.length - 3} more
                               </span>
                             )}
@@ -980,7 +980,7 @@ export default function SubscriptionsPage() {
                           <FormLabel>Currency</FormLabel>
                           <FormControl>
                             <select
-                              className="block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                              className="block w-full rounded-md border border-white/[0.08] bg-[#0d1b0f] px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                               value={field.value}
                               onChange={field.onChange}
                             >
@@ -1005,7 +1005,7 @@ export default function SubscriptionsPage() {
                           <FormLabel>Billing Cycle</FormLabel>
                           <FormControl>
                             <select
-                              className="block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                              className="block w-full rounded-md border border-white/[0.08] bg-[#0d1b0f] px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                               value={field.value}
                               onChange={field.onChange}
                             >
@@ -1026,7 +1026,7 @@ export default function SubscriptionsPage() {
                           <FormLabel>Next Billing Date</FormLabel>
                           <FormControl>
                             <div className="relative">
-                              <CalendarDays className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                              <CalendarDays className="w-4 h-4 text-white/35 absolute left-3 top-1/2 -translate-y-1/2" />
                               <Input
                                 type="date"
                                 className="pl-9"
@@ -1053,7 +1053,7 @@ export default function SubscriptionsPage() {
                           <FormLabel>Category</FormLabel>
                           <FormControl>
                             <select
-                              className="block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                              className="block w-full rounded-md border border-white/[0.08] bg-[#0d1b0f] px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                               value={field.value || ''}
                               onChange={(e) =>
                                 field.onChange(e.target.value || undefined)
@@ -1079,7 +1079,7 @@ export default function SubscriptionsPage() {
                           <FormLabel>Status</FormLabel>
                           <FormControl>
                             <select
-                              className="block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                              className="block w-full rounded-md border border-white/[0.08] bg-[#0d1b0f] px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                               value={field.value}
                               onChange={field.onChange}
                             >
@@ -1120,7 +1120,7 @@ export default function SubscriptionsPage() {
                             serviceName={editForm.watch('name')}
                           />
                         </FormControl>
-                        <p className="text-xs text-slate-500 mt-1">
+                        <p className="text-xs text-white/45 mt-1">
                           Select from popular services or use a custom logo URL
                         </p>
                         <FormMessage />
@@ -1142,7 +1142,7 @@ export default function SubscriptionsPage() {
                   />
                   <Button
                     type="submit"
-                    className="w-full gap-2 bg-slate-900 hover:bg-emerald-600"
+                    className="w-full gap-2 bg-[#0d1b0f] hover:bg-[#b5f542]"
                     disabled={isSubmitting}
                   >
                     {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}

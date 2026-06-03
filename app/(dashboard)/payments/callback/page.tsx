@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -52,33 +52,33 @@ function PaymentCallbackContent() {
   }, [searchParams])
 
   return (
-    <div className="flex-1 bg-[#FAFAFA] text-slate-900 selection:bg-emerald-100">
+    <div className="flex-1 bg-[#070e08] text-white selection:bg-[#a3e635]/20">
       <main className="px-6 py-10 max-w-lg mx-auto">
-        <Card className="bg-white border-slate-100 p-8 flex flex-col items-center gap-6 shadow-sm rounded-2xl text-center">
+        <Card className="bg-[#0d1b0f] border-white/[0.07] p-8 flex flex-col items-center gap-6 shadow-sm rounded-2xl text-center">
           {status === 'loading' && (
             <>
               <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-slate-400 animate-spin" />
+                <Loader2 className="w-8 h-8 text-white/35 animate-spin" />
               </div>
               <div className="space-y-2">
-                <h1 className="text-xl font-bold text-slate-900">Verifying Payment</h1>
-                <p className="text-sm text-slate-500">{message}</p>
+                <h1 className="text-xl font-bold text-white">Verifying Payment</h1>
+                <p className="text-sm text-white/45">{message}</p>
               </div>
             </>
           )}
 
           {status === 'success' && (
             <>
-              <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
-                <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+              <div className="w-16 h-16 rounded-full bg-[#a3e635]/15 flex items-center justify-center">
+                <CheckCircle2 className="w-8 h-8 text-[#a3e635]" />
               </div>
               <div className="space-y-2">
-                <h1 className="text-xl font-bold text-slate-900">Payment Successful!</h1>
-                <p className="text-sm text-slate-500">{message}</p>
+                <h1 className="text-xl font-bold text-white">Payment Successful!</h1>
+                <p className="text-sm text-white/45">{message}</p>
               </div>
               <Button
                 onClick={() => router.push('/dashboard')}
-                className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                className="bg-[#a3e635]/100 hover:bg-emerald-600 text-white"
               >
                 Go to Dashboard
               </Button>
@@ -91,8 +91,8 @@ function PaymentCallbackContent() {
                 <XCircle className="w-8 h-8 text-red-500" />
               </div>
               <div className="space-y-2">
-                <h1 className="text-xl font-bold text-slate-900">Payment Failed</h1>
-                <p className="text-sm text-slate-500">{message}</p>
+                <h1 className="text-xl font-bold text-white">Payment Failed</h1>
+                <p className="text-sm text-white/45">{message}</p>
               </div>
               <div className="flex gap-3">
                 <Button
@@ -118,15 +118,15 @@ function PaymentCallbackContent() {
 
 function PaymentCallbackFallback() {
   return (
-    <div className="flex-1 bg-[#FAFAFA] text-slate-900 selection:bg-emerald-100">
+    <div className="flex-1 bg-[#070e08] text-white selection:bg-[#a3e635]/20">
       <main className="px-6 py-10 max-w-lg mx-auto">
-        <Card className="bg-white border-slate-100 p-8 flex flex-col items-center gap-6 shadow-sm rounded-2xl text-center">
+        <Card className="bg-[#0d1b0f] border-white/[0.07] p-8 flex flex-col items-center gap-6 shadow-sm rounded-2xl text-center">
           <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
-            <Loader2 className="w-8 h-8 text-slate-400 animate-spin" />
+            <Loader2 className="w-8 h-8 text-white/35 animate-spin" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-xl font-bold text-slate-900">Verifying Payment</h1>
-            <p className="text-sm text-slate-500">Loading...</p>
+            <h1 className="text-xl font-bold text-white">Verifying Payment</h1>
+            <p className="text-sm text-white/45">Loading...</p>
           </div>
         </Card>
       </main>

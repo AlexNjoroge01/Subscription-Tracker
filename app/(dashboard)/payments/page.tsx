@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -61,28 +61,28 @@ function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case 'completed':
       return (
-        <Badge className="gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-50">
+        <Badge className="gap-1.5 bg-[#a3e635]/10 text-[#a3e635] border border-[#a3e635]/20 hover:bg-[#b5f542]/10">
           <CheckCircle2 className="w-3 h-3" />
           Completed
         </Badge>
       )
     case 'failed':
       return (
-        <Badge className="gap-1.5 bg-red-50 text-red-700 border border-red-200 hover:bg-red-50">
+        <Badge className="gap-1.5 bg-red-400/10 text-red-400 border border-red-400/30 hover:bg-red-400/10">
           <XCircle className="w-3 h-3" />
           Failed
         </Badge>
       )
     case 'pending':
       return (
-        <Badge className="gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-50">
+        <Badge className="gap-1.5 bg-amber-500/10 text-amber-400 border border-amber-400/30 hover:bg-amber-500/10">
           <Clock className="w-3 h-3" />
           Pending
         </Badge>
       )
     default:
       return (
-        <Badge className="gap-1.5 bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-100">
+        <Badge className="gap-1.5 bg-white/[0.04] text-white/65 border border-white/[0.08] hover:bg-white/[0.04]">
           <AlertCircle className="w-3 h-3" />
           {status.charAt(0).toUpperCase() + status.slice(1)}
         </Badge>
@@ -116,43 +116,43 @@ export default function PaymentsPage() {
   }, [])
 
   return (
-    <div className="flex-1 bg-[#FAFAFA] text-slate-900 selection:bg-emerald-100">
+    <div className="flex-1 bg-[#070e08] text-white selection:bg-[#a3e635]/15">
       <main className="px-6 py-10 max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <section className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-md bg-slate-900 text-emerald-300 text-[10px] font-bold uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-md bg-[#0d1b0f] text-[#a3e635] text-[10px] font-bold uppercase tracking-widest">
             <CreditCard className="w-3 h-3" />
             Payment History
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 leading-none">
+          <h1 className="text-3xl font-black tracking-tight text-white leading-none">
             Your billing records.
           </h1>
-          <p className="text-slate-500 font-light text-sm">
+          <p className="text-white/45 font-light text-sm">
             A complete log of every charge processed against your account.
           </p>
         </section>
 
         {/* Table card */}
-        <Card className="bg-white border-slate-100 shadow-sm rounded-2xl overflow-hidden">
+        <Card className="bg-[#0d1b0f] border-white/[0.06] shadow-sm rounded-2xl overflow-hidden">
           {isLoading ? (
             /* Loading state */
-            <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400">
-              <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
-              <p className="text-sm font-medium text-slate-500">
+            <div className="flex flex-col items-center justify-center py-20 gap-3 text-white/35">
+              <Loader2 className="w-6 h-6 animate-spin text-[#a3e635]" />
+              <p className="text-sm font-medium text-white/45">
                 Fetching payment history…
               </p>
             </div>
           ) : payments.length === 0 ? (
             /* Empty state */
             <div className="flex flex-col items-center justify-center py-20 text-center gap-4 px-6">
-              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
-                <ReceiptText className="w-7 h-7 text-slate-400" />
+              <div className="w-14 h-14 rounded-2xl bg-white/[0.04] flex items-center justify-center">
+                <ReceiptText className="w-7 h-7 text-white/35" />
               </div>
               <div className="space-y-1">
-                <h2 className="text-base font-semibold text-slate-900">
+                <h2 className="text-base font-semibold text-white">
                   No payments on record
                 </h2>
-                <p className="text-sm text-slate-500 max-w-sm">
+                <p className="text-sm text-white/45 max-w-sm">
                   Once you complete a subscription payment, each transaction will
                   appear here with its full details.
                 </p>
@@ -163,23 +163,23 @@ export default function PaymentsPage() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-slate-50 border-b border-slate-100">
-                    <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-400 py-3 pl-6">
+                  <TableRow className="bg-[#0a1409] border-b border-white/[0.06]">
+                    <TableHead className="text-[11px] font-bold uppercase tracking-wider text-white/35 py-3 pl-6">
                       Date
                     </TableHead>
-                    <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-400 py-3">
+                    <TableHead className="text-[11px] font-bold uppercase tracking-wider text-white/35 py-3">
                       Plan
                     </TableHead>
-                    <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-400 py-3">
+                    <TableHead className="text-[11px] font-bold uppercase tracking-wider text-white/35 py-3">
                       Amount
                     </TableHead>
-                    <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-400 py-3">
+                    <TableHead className="text-[11px] font-bold uppercase tracking-wider text-white/35 py-3">
                       Currency
                     </TableHead>
-                    <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-400 py-3">
+                    <TableHead className="text-[11px] font-bold uppercase tracking-wider text-white/35 py-3">
                       Status
                     </TableHead>
-                    <TableHead className="text-[11px] font-bold uppercase tracking-wider text-slate-400 py-3 pr-6">
+                    <TableHead className="text-[11px] font-bold uppercase tracking-wider text-white/35 py-3 pr-6">
                       Reference
                     </TableHead>
                   </TableRow>
@@ -188,16 +188,16 @@ export default function PaymentsPage() {
                   {payments.map((payment) => (
                     <TableRow
                       key={payment.id}
-                      className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors"
+                      className="border-b border-white/[0.05] hover:bg-[#0d1b0f]/[0.03] transition-colors"
                     >
                       {/* Date */}
                       <TableCell className="pl-6 py-4">
                         <div className="flex flex-col gap-0.5">
-                          <span className="text-sm font-medium text-slate-900">
+                          <span className="text-sm font-medium text-white">
                             {formatDate(payment.paidAt ?? payment.createdAt)}
                           </span>
                           {payment.paidAt && (
-                            <span className="text-[11px] text-slate-400">
+                            <span className="text-[11px] text-white/35">
                               Initiated {formatDate(payment.createdAt)}
                             </span>
                           )}
@@ -207,11 +207,11 @@ export default function PaymentsPage() {
                       {/* Plan */}
                       <TableCell className="py-4">
                         <div className="flex flex-col gap-0.5">
-                          <span className="text-sm font-semibold text-slate-900">
+                          <span className="text-sm font-semibold text-white">
                             {payment.planName ?? 'Unknown Plan'}
                           </span>
                           {payment.planInterval && (
-                            <span className="text-[11px] text-slate-400 capitalize">
+                            <span className="text-[11px] text-white/35 capitalize">
                               {payment.planInterval}
                             </span>
                           )}
@@ -220,14 +220,14 @@ export default function PaymentsPage() {
 
                       {/* Amount */}
                       <TableCell className="py-4">
-                        <span className="text-sm font-bold text-slate-900 tabular-nums">
+                        <span className="text-sm font-bold text-white tabular-nums">
                           {formatCurrency(payment.amount, payment.currency)}
                         </span>
                       </TableCell>
 
                       {/* Currency */}
                       <TableCell className="py-4">
-                        <span className="text-sm text-slate-600 font-mono uppercase">
+                        <span className="text-sm text-white/65 font-mono uppercase">
                           {payment.currency}
                         </span>
                       </TableCell>
@@ -240,11 +240,11 @@ export default function PaymentsPage() {
                       {/* Reference */}
                       <TableCell className="py-4 pr-6">
                         {payment.providerRef ? (
-                          <code className="text-[11px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md break-all">
+                          <code className="text-[11px] font-mono text-white/45 bg-white/[0.04] px-2 py-0.5 rounded-md break-all">
                             {payment.providerRef}
                           </code>
                         ) : (
-                          <span className="text-xs text-slate-400">—</span>
+                          <span className="text-xs text-white/35">—</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -253,8 +253,8 @@ export default function PaymentsPage() {
               </Table>
 
               {/* Footer count */}
-              <div className="px-6 py-3 border-t border-slate-100 bg-slate-50">
-                <p className="text-[11px] text-slate-400">
+              <div className="px-6 py-3 border-t border-white/[0.06] bg-[#0a1409]">
+                <p className="text-[11px] text-white/35">
                   {payments.length} {payments.length === 1 ? 'record' : 'records'} total
                 </p>
               </div>

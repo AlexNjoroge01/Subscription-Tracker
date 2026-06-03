@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -178,20 +178,20 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] px-6 py-10">
+    <div className="min-h-screen bg-[#070e08] px-6 py-10">
       <div className="max-w-6xl mx-auto space-y-8">
         <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900">
+            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
               Categories
             </h1>
-            <p className="text-slate-500 mt-2">
+            <p className="text-white/45 mt-2">
               Group subscriptions into clean spending lanes with color-coded control.
             </p>
           </div>
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+              <Button className="gap-2 bg-[#a3e635] hover:bg-[#b5f542]">
                 <Plus className="w-4 h-4" />
                 Add Category
               </Button>
@@ -252,7 +252,7 @@ export default function CategoriesPage() {
                             color={createForm.watch('color')}
                           />
                         </FormControl>
-                        <p className="text-xs text-slate-500 mt-1">
+                        <p className="text-xs text-white/45 mt-1">
                           Select an icon that represents this category
                         </p>
                         <FormMessage />
@@ -284,7 +284,7 @@ export default function CategoriesPage() {
                   />
                   <Button
                     type="submit"
-                    className="w-full gap-2 bg-slate-900 hover:bg-emerald-600"
+                    className="w-full gap-2 bg-[#0d1b0f] hover:bg-[#b5f542]"
                     disabled={isSubmitting}
                   >
                     {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -296,17 +296,17 @@ export default function CategoriesPage() {
           </Dialog>
         </header>
 
-        <Card className="p-4 md:p-6 shadow-2xl shadow-slate-200/60 border-slate-100 bg-white space-y-6">
+        <Card className="p-4 md:p-6 shadow-2xl shadow-black/30 border-white/[0.06] bg-[#0d1b0f] space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-2xl bg-emerald-50 flex items-center justify-center">
-                <Palette className="w-5 h-5 text-emerald-600" />
+              <div className="w-9 h-9 rounded-2xl bg-[#a3e635]/10 flex items-center justify-center">
+                <Palette className="w-5 h-5 text-[#a3e635]" />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+                <p className="text-xs font-semibold uppercase tracking-widest text-white/35">
                   Overview
                 </p>
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-white/65">
                   {categories.length} categories ·{' '}
                   {totalBudget > 0
                     ? `${getCurrencySymbol(DEFAULT_CURRENCY)} ${totalBudget.toLocaleString()} monthly budget configured`
@@ -314,7 +314,7 @@ export default function CategoriesPage() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 text-xs text-slate-400">
+            <div className="flex items-center gap-3 text-xs text-white/35">
               <AlertTriangle className="w-3 h-3 text-amber-500" />
               <span>
                 Deleting a category with subscriptions is blocked until they are reassigned.
@@ -323,19 +323,19 @@ export default function CategoriesPage() {
           </div>
 
           {isLoading ? (
-            <div className="flex items-center justify-center py-10 gap-3 text-slate-500">
+            <div className="flex items-center justify-center py-10 gap-3 text-white/45">
               <Loader2 className="w-5 h-5 animate-spin" />
               <span className="text-sm font-medium">Loading your categories...</span>
             </div>
           ) : categories.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                <Palette className="w-6 h-6 text-slate-400" />
+              <div className="w-12 h-12 rounded-2xl bg-white/[0.04] flex items-center justify-center">
+                <Palette className="w-6 h-6 text-white/35" />
               </div>
-              <h2 className="text-lg font-semibold text-slate-900">
+              <h2 className="text-lg font-semibold text-white">
                 No categories yet
               </h2>
-              <p className="text-slate-500 text-sm max-w-sm">
+              <p className="text-white/45 text-sm max-w-sm">
                 Create your first category to start tracking how much you burn per lane:
                 Entertainment, Tools, Cloud, and more.
               </p>
@@ -347,7 +347,7 @@ export default function CategoriesPage() {
                 return (
                   <div
                     key={category.id}
-                    className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 p-4"
+                    className="flex flex-col gap-3 rounded-2xl border border-white/[0.06] bg-[#0d1b0f]/[0.03] p-4"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
@@ -373,7 +373,7 @@ export default function CategoriesPage() {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <p className="font-semibold text-sm text-slate-900">
+                            <p className="font-semibold text-sm text-white">
                               {category.name}
                             </p>
                             <Badge
@@ -384,7 +384,7 @@ export default function CategoriesPage() {
                             </Badge>
                           </div>
                           {category.budgetLimit && (
-                            <p className="text-xs text-slate-500 mt-1">
+                            <p className="text-xs text-white/45 mt-1">
                               Budget: {getCurrencySymbol(DEFAULT_CURRENCY)} {category.budgetLimit.toLocaleString()}
                             </p>
                           )}
@@ -394,7 +394,7 @@ export default function CategoriesPage() {
                         <Button
                           variant="outline"
                           size="icon-sm"
-                          className="border-slate-200"
+                          className="border-white/[0.08]"
                           onClick={() => startEdit(category)}
                         >
                           <Edit3 className="w-3 h-3" />
@@ -402,7 +402,7 @@ export default function CategoriesPage() {
                         <Button
                           variant="outline"
                           size="icon-sm"
-                          className="border-slate-200 text-red-500 hover:text-red-600 hover:border-red-200"
+                          className="border-white/[0.08] text-red-400 hover:text-red-400 hover:border-red-400/30"
                           onClick={() => handleDelete(category)}
                         >
                           <Trash2 className="w-3 h-3" />
@@ -474,7 +474,7 @@ export default function CategoriesPage() {
                             color={editForm.watch('color')}
                           />
                         </FormControl>
-                        <p className="text-xs text-slate-500 mt-1">
+                        <p className="text-xs text-white/45 mt-1">
                           Select an icon that represents this category
                         </p>
                         <FormMessage />
@@ -505,7 +505,7 @@ export default function CategoriesPage() {
                   />
                   <Button
                     type="submit"
-                    className="w-full gap-2 bg-slate-900 hover:bg-emerald-600"
+                    className="w-full gap-2 bg-[#0d1b0f] hover:bg-[#b5f542]"
                     disabled={isSubmitting}
                   >
                     {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
