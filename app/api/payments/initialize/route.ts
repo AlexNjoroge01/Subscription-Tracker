@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma/client'
+import { db } from '@/lib/db'
+import { payments, paymentPlans, users } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import { requireAuth } from '@/lib/api/auth-guard'
 import { success, error, unauthorized } from '@/lib/api/response'
 import {
@@ -22,18 +24,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the plan
-    const plan = await prisma.paymentPlan.findUnique({
-      where: { id: planId },
-    })
+    const [plan] = await db
+      .select()
+      .from(paymentPlans)
+      .where(eq(paymentPlans.id, planId))
+      .limit(1)
 
     if (!plan || !plan.isActive) {
       return error('Invalid or inactive plan', 400)
     }
 
     // Get user with email
-    const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
-    })
+    const [dbUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, user.id))
+      .limit(1)
 
     if (!dbUser) {
       return unauthorized()
@@ -52,8 +58,9 @@ export async function POST(request: NextRequest) {
     const reference = generatePaymentReference(user.id)
 
     // Create a pending payment record
-    const payment = await prisma.payment.create({
-      data: {
+    const [payment] = await db
+      .insert(payments)
+      .values({
         userId: user.id,
         planId: plan.id,
         amount,
@@ -61,8 +68,8 @@ export async function POST(request: NextRequest) {
         status: 'pending',
         provider: 'paystack',
         providerRef: reference,
-      },
-    })
+      })
+      .returning()
 
     // Initialize payment with Paystack
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
@@ -83,10 +90,11 @@ export async function POST(request: NextRequest) {
 
     if (!paymentResult.status) {
       // Update payment status to failed
-      await prisma.payment.update({
-        where: { id: payment.id },
-        data: { status: 'failed' },
-      })
+      await db
+        .update(payments)
+        .set({ status: 'failed' })
+        .where(eq(payments.id, payment.id))
+
       return error(paymentResult.message || 'Failed to initialize payment', 400)
     }
 

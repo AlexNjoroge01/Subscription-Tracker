@@ -1,84 +1,76 @@
-import { prisma } from '../lib/prisma/client.js'
+import { db } from '../lib/db/index.js'
+import { paymentPlans } from '../lib/db/schema.js'
+
+const plans = [
+  {
+    id: 'starter-plan',
+    name: 'starter',
+    price: 0,
+    currency: 'USD',
+    interval: 'monthly',
+    features: [
+      'Up to 20 subscriptions',
+      'Up to 5 categories',
+      'Basic analytics',
+      'Email reminders',
+      'Budget tracking',
+      'Export data',
+    ],
+    isActive: true,
+  },
+  {
+    id: 'pro-plan',
+    name: 'pro',
+    price: 4.99,
+    currency: 'USD',
+    interval: 'monthly',
+    features: [
+      'Unlimited subscriptions',
+      'Unlimited categories',
+      'Advanced analytics',
+      'Email & in-app notifications',
+      'Budget tracking',
+      'Export data',
+      'Priority support',
+      'Custom billing cycles',
+    ],
+    isActive: true,
+  },
+  {
+    id: 'premium-plan',
+    name: 'premium',
+    price: 9.99,
+    currency: 'USD',
+    interval: 'monthly',
+    features: [
+      'Everything in Pro',
+      'Family sharing (up to 5 members)',
+      'API access',
+      'Advanced reports',
+      'Data backup',
+      'Custom integrations',
+      '24/7 priority support',
+      'Early access to new features',
+    ],
+    isActive: true,
+  },
+]
 
 async function main() {
   console.log('Seeding payment plans...')
 
-  // Create Free plan
-  const freePlan = await prisma.paymentPlan.upsert({
-    where: { id: 'free-plan' },
-    update: {},
-    create: {
-      id: 'free-plan',
-      name: 'Free',
-      price: 0,
-      currency: 'KES',
-      interval: 'monthly',
-      features: [
-        'Up to 5 subscriptions',
-        'Basic analytics',
-        'Email reminders',
-        '1 category',
-      ],
-      isActive: true,
-    },
-  })
+  for (const plan of plans) {
+    await db
+      .insert(paymentPlans)
+      .values(plan)
+      .onConflictDoNothing()
+    console.log('Upserted plan:', plan.id)
+  }
 
-  // Create Pro plan
-  const proPlan = await prisma.paymentPlan.upsert({
-    where: { id: 'pro-plan' },
-    update: {},
-    create: {
-      id: 'pro-plan',
-      name: 'Pro',
-      price: 499, // KES 499/month
-      currency: 'KES',
-      interval: 'monthly',
-      features: [
-        'Unlimited subscriptions',
-        'Advanced analytics',
-        'Email & in-app notifications',
-        'Unlimited categories',
-        'Budget tracking',
-        'Export data',
-        'Priority support',
-      ],
-      isActive: true,
-    },
-  })
-
-  // Create Premium plan
-  const premiumPlan = await prisma.paymentPlan.upsert({
-    where: { id: 'premium-plan' },
-    update: {},
-    create: {
-      id: 'premium-plan',
-      name: 'Premium',
-      price: 999, // KES 999/month
-      currency: 'KES',
-      interval: 'monthly',
-      features: [
-        'Everything in Pro',
-        'Family sharing (up to 5 members)',
-        'Custom billing cycles',
-        'API access',
-        'Advanced reports',
-        'Data backup',
-        '24/7 priority support',
-        'Early access to new features',
-      ],
-      isActive: true,
-    },
-  })
-
-  console.log('Created plans:', { freePlan, proPlan, premiumPlan })
   console.log('Seeding completed!')
 }
 
-main()
-  .catch((e) => {
-    console.error('Error seeding:', e)
-    process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
+main().catch((e) => {
+  console.error('Error seeding:', e)
+  process.exit(1)
+})

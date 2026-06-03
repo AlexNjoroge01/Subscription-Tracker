@@ -3,7 +3,9 @@
  * Manages subscription and category limits based on user's plan
  */
 
-import { prisma } from './prisma/client'
+import { db } from './db'
+import { users, subscriptions, categories } from './db/schema'
+import { eq, and, inArray, count as drizzleCount } from 'drizzle-orm'
 import { addDays } from 'date-fns'
 
 // Plan limits configuration
@@ -64,10 +66,11 @@ export interface PlanLimits {
  * Get the plan limits for a user
  */
 export async function getUserPlanLimits(userId: string): Promise<PlanLimits> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: { plan: true },
-  })
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1)
 
   if (!user) {
     throw new Error('User not found')
@@ -76,9 +79,6 @@ export async function getUserPlanLimits(userId: string): Promise<PlanLimits> {
   const planId = (user.planId as PlanId) || 'starter-plan'
   const limits = PLAN_LIMITS[planId]
 
-  // Check if user is on trial
-  const isOnTrial = user.trialEndsAt && new Date() < user.trialEndsAt
-  
   // Check if plan has expired
   const isPlanExpired = user.planEndsAt && new Date() > user.planEndsAt
 
@@ -94,13 +94,20 @@ export async function getUserPlanLimits(userId: string): Promise<PlanLimits> {
  * Check if user can add more subscriptions
  */
 export async function canAddSubscription(userId: string): Promise<{ allowed: boolean; current: number; max: number | string }> {
-  const [limits, subscriptionCount] = await Promise.all([
+  const [limits, countResult] = await Promise.all([
     getUserPlanLimits(userId),
-    prisma.subscription.count({
-      where: { userId, status: { in: ['active', 'overdue'] } },
-    }),
+    db
+      .select({ value: drizzleCount() })
+      .from(subscriptions)
+      .where(
+        and(
+          eq(subscriptions.userId, userId),
+          inArray(subscriptions.status, ['active', 'overdue'])
+        )
+      ),
   ])
 
+  const subscriptionCount = countResult[0]?.value ?? 0
   const allowed = limits.maxSubscriptions === Infinity || subscriptionCount < limits.maxSubscriptions
 
   return {
@@ -114,11 +121,15 @@ export async function canAddSubscription(userId: string): Promise<{ allowed: boo
  * Check if user can add more categories
  */
 export async function canAddCategory(userId: string): Promise<{ allowed: boolean; current: number; max: number | string }> {
-  const [limits, categoryCount] = await Promise.all([
+  const [limits, countResult] = await Promise.all([
     getUserPlanLimits(userId),
-    prisma.category.count({ where: { userId } }),
+    db
+      .select({ value: drizzleCount() })
+      .from(categories)
+      .where(eq(categories.userId, userId)),
   ])
 
+  const categoryCount = countResult[0]?.value ?? 0
   const allowed = limits.maxCategories === Infinity || categoryCount < limits.maxCategories
 
   return {
@@ -141,11 +152,11 @@ export async function hasFeatureAccess(userId: string, feature: string): Promise
  */
 export async function startTrial(userId: string, trialDays: number = 14): Promise<void> {
   const trialEndsAt = addDays(new Date(), trialDays)
-  
-  await prisma.user.update({
-    where: { id: userId },
-    data: { trialEndsAt },
-  })
+
+  await db
+    .update(users)
+    .set({ trialEndsAt })
+    .where(eq(users.id, userId))
 }
 
 /**
@@ -157,15 +168,15 @@ export async function upgradeUserPlan(
   planDurationDays?: number
 ): Promise<void> {
   const data: { planId: string; planEndsAt?: Date } = { planId }
-  
+
   if (planDurationDays) {
     data.planEndsAt = addDays(new Date(), planDurationDays)
   }
 
-  await prisma.user.update({
-    where: { id: userId },
-    data,
-  })
+  await db
+    .update(users)
+    .set(data)
+    .where(eq(users.id, userId))
 }
 
 /**
@@ -179,26 +190,26 @@ export async function getUserPlanStatus(userId: string): Promise<{
   planEndsAt: Date | null
   isPlanActive: boolean
 }> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: { plan: true },
+  const result = await db.query.users.findFirst({
+    where: eq(users.id, userId),
+    with: { plan: true },
   })
 
-  if (!user) {
+  if (!result) {
     throw new Error('User not found')
   }
 
   const now = new Date()
-  const isOnTrial = user.trialEndsAt ? now < user.trialEndsAt : false
-  const isPlanExpired = user.planEndsAt ? now > user.planEndsAt : false
+  const isOnTrial = result.trialEndsAt ? now < result.trialEndsAt : false
+  const isPlanExpired = result.planEndsAt ? now > result.planEndsAt : false
   const isPlanActive = isOnTrial || !isPlanExpired
 
   return {
-    planId: user.planId || 'starter-plan',
-    planName: user.plan?.name || 'Starter',
+    planId: result.planId || 'starter-plan',
+    planName: result.plan?.name || 'Starter',
     isOnTrial,
-    trialEndsAt: user.trialEndsAt,
-    planEndsAt: user.planEndsAt,
+    trialEndsAt: result.trialEndsAt,
+    planEndsAt: result.planEndsAt,
     isPlanActive,
   }
 }

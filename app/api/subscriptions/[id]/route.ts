@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma/client'
+import { eq, and } from 'drizzle-orm'
+import { db } from '@/lib/db'
+import { subscriptions } from '@/lib/db/schema'
 import { requireAuth } from '@/lib/api/auth-guard'
 import { updateSubscriptionSchema } from '@/schemas'
 import { error, success, unauthorized, notFound, validationError } from '@/lib/api/response'
@@ -13,12 +15,12 @@ export async function GET(
         const user = await requireAuth()
         const { id } = await params
 
-        const subscription = await prisma.subscription.findFirst({
-            where: {
-                id,
-                userId: user.id,
-            },
-            include: {
+        const subscription = await db.query.subscriptions.findFirst({
+            where: and(
+                eq(subscriptions.id, id),
+                eq(subscriptions.userId, user.id)
+            ),
+            with: {
                 category: true,
             },
         })
@@ -48,11 +50,11 @@ export async function PATCH(
         const body = await request.json()
 
         // Check if subscription exists and belongs to user
-        const existing = await prisma.subscription.findFirst({
-            where: {
-                id,
-                userId: user.id,
-            },
+        const existing = await db.query.subscriptions.findFirst({
+            where: and(
+                eq(subscriptions.id, id),
+                eq(subscriptions.userId, user.id)
+            ),
         })
 
         if (!existing) {
@@ -65,13 +67,16 @@ export async function PATCH(
             return validationError(validation.error.flatten().fieldErrors as Record<string, string[]>)
         }
 
-        const data = validation.data
-
         // Update subscription
-        const subscription = await prisma.subscription.update({
-            where: { id },
-            data,
-            include: {
+        await db
+            .update(subscriptions)
+            .set(validation.data)
+            .where(eq(subscriptions.id, id))
+
+        // Refetch with category relation
+        const subscription = await db.query.subscriptions.findFirst({
+            where: eq(subscriptions.id, id),
+            with: {
                 category: true,
             },
         })
@@ -96,11 +101,11 @@ export async function DELETE(
         const { id } = await params
 
         // Check if subscription exists and belongs to user
-        const existing = await prisma.subscription.findFirst({
-            where: {
-                id,
-                userId: user.id,
-            },
+        const existing = await db.query.subscriptions.findFirst({
+            where: and(
+                eq(subscriptions.id, id),
+                eq(subscriptions.userId, user.id)
+            ),
         })
 
         if (!existing) {
@@ -108,9 +113,9 @@ export async function DELETE(
         }
 
         // Delete subscription (notifications will cascade delete)
-        await prisma.subscription.delete({
-            where: { id },
-        })
+        await db
+            .delete(subscriptions)
+            .where(eq(subscriptions.id, id))
 
         return success({ message: 'Subscription deleted successfully' })
     } catch (err) {

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma/client'
+import { db } from '@/lib/db'
+import { users, passwordResetTokens } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
 import { sendPasswordResetEmail } from '@/lib/email/email-service'
 
@@ -15,9 +17,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
-    })
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email.toLowerCase()))
+      .limit(1)
 
     // Always return success to prevent email enumeration
     if (!user) {
@@ -32,23 +36,22 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
 
     // Delete any existing reset tokens for this user
-    await prisma.passwordResetToken.deleteMany({
-      where: { userId: user.id },
-    })
+    await db
+      .delete(passwordResetTokens)
+      .where(eq(passwordResetTokens.userId, user.id))
 
     // Create new reset token
-    await prisma.passwordResetToken.create({
-      data: {
-        userId: user.id,
-        token,
-        expiresAt,
-      },
+    await db.insert(passwordResetTokens).values({
+      userId: user.id,
+      token,
+      expiresAt,
     })
 
-    // Send reset email
-    const resetUrl = `${process.env.NEXTAUTH_URL || process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : 'http://localhost:3000'}/reset-password?token=${token}`
+    // Build reset URL
+    const baseUrl =
+      process.env.NEXTAUTH_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+    const resetUrl = `${baseUrl}/reset-password?token=${token}`
 
     try {
       await sendPasswordResetEmail(email, resetUrl, user.name || undefined)

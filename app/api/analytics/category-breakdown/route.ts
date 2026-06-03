@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma/client'
+import { db } from '@/lib/db'
+import { subscriptions, categories } from '@/lib/db/schema'
+import { eq, sum, count, sql } from 'drizzle-orm'
 import { requireAuth } from '@/lib/api/auth-guard'
 import { error, success, unauthorized } from '@/lib/api/response'
 
@@ -8,32 +10,22 @@ export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth()
 
-    const [subs, categories] = await Promise.all([
-      prisma.subscription.findMany({
-        where: { userId: user.id },
-      }),
-      prisma.category.findMany({
-        where: { userId: user.id },
-      }),
-    ])
+    const rows = await db
+      .select({
+        name: sql<string>`coalesce(${categories.name}, 'Uncategorised')`,
+        total: sum(subscriptions.amount).mapWith(Number),
+        count: count(subscriptions.id),
+      })
+      .from(subscriptions)
+      .leftJoin(categories, eq(subscriptions.categoryId, categories.id))
+      .where(eq(subscriptions.userId, user.id))
+      .groupBy(sql`coalesce(${categories.name}, 'Uncategorised')`)
 
-    const byCategory = new Map<string, { total: number; count: number }>()
-    subs.forEach((s) => {
-      const category = categories.find((c) => c.id === s.categoryId)
-      const key = category?.name ?? 'Uncategorised'
-      const entry = byCategory.get(key) ?? { total: 0, count: 0 }
-      entry.total += s.amount
-      entry.count += 1
-      byCategory.set(key, entry)
-    })
-
-    const breakdown = Array.from(byCategory.entries()).map(
-      ([name, { total, count }]) => ({
-        name,
-        total,
-        count,
-      }),
-    )
+    const breakdown = rows.map(({ name, total, count }) => ({
+      name,
+      total: total ?? 0,
+      count,
+    }))
 
     return success(breakdown)
   } catch (err) {
@@ -44,4 +36,3 @@ export async function GET(request: NextRequest) {
     return error('Failed to load category breakdown', 500)
   }
 }
-

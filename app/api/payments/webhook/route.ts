@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma/client'
-import { verifyPayment } from '@/lib/paystack/paystack'
+import { db } from '@/lib/db'
+import { payments } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 
 // Paystack webhook handler
 // This endpoint receives webhook events from Paystack
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text()
-    const signature = request.headers.get('x-paystack-signature')
 
     // In production, you should verify the signature
     // For now, we'll process the webhook without signature verification
@@ -15,16 +15,17 @@ export async function POST(request: NextRequest) {
 
     const event = JSON.parse(body)
 
-    // Handle different event types
     switch (event.event) {
       case 'charge.success': {
         const data = event.data
         const reference = data.reference
 
         // Find the payment by reference
-        const payment = await prisma.payment.findUnique({
-          where: { providerRef: reference },
-        })
+        const [payment] = await db
+          .select()
+          .from(payments)
+          .where(eq(payments.providerRef, reference))
+          .limit(1)
 
         if (!payment) {
           console.error(`Payment not found for reference: ${reference}`)
@@ -33,14 +34,14 @@ export async function POST(request: NextRequest) {
 
         // Update payment status if not already completed
         if (payment.status !== 'completed') {
-          await prisma.payment.update({
-            where: { id: payment.id },
-            data: {
+          await db
+            .update(payments)
+            .set({
               status: 'completed',
               providerId: data.id.toString(),
               paidAt: new Date(data.paid_at),
-            },
-          })
+            })
+            .where(eq(payments.id, payment.id))
 
           console.log(`Payment ${payment.id} marked as completed`)
         }
@@ -52,15 +53,17 @@ export async function POST(request: NextRequest) {
         const data = event.data
         const reference = data.reference
 
-        const payment = await prisma.payment.findUnique({
-          where: { providerRef: reference },
-        })
+        const [payment] = await db
+          .select()
+          .from(payments)
+          .where(eq(payments.providerRef, reference))
+          .limit(1)
 
         if (payment && payment.status !== 'completed') {
-          await prisma.payment.update({
-            where: { id: payment.id },
-            data: { status: 'failed' },
-          })
+          await db
+            .update(payments)
+            .set({ status: 'failed' })
+            .where(eq(payments.id, payment.id))
 
           console.log(`Payment ${payment.id} marked as failed`)
         }

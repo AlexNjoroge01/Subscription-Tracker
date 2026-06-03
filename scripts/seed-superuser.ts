@@ -1,5 +1,6 @@
-import { prisma } from '../lib/prisma/client.js'
-import { UserRole } from '@prisma/client'
+import { db } from '../lib/db/index.js'
+import { users } from '../lib/db/schema.js'
+import { eq } from 'drizzle-orm'
 import bcrypt from 'bcrypt'
 
 const SALT_ROUNDS = 10
@@ -8,43 +9,32 @@ async function main() {
   const email = 'alexnjoroge102@gmail.com'
   const password = 'subtrack217'
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS)
+  const now = new Date()
 
-  // Check if user already exists
-  const existingUser = await prisma.user.findUnique({
-    where: { email }
+  const existingUser = await db.query.users.findFirst({
+    where: (u, { eq }) => eq(u.email, email),
   })
 
   if (existingUser) {
-    // Update existing user to superuser and reset password
-    const updatedUser = await prisma.user.update({
-      where: { email },
-      data: { 
-        role: UserRole.SUPERUSER,
-        password: hashedPassword,
-        emailVerified: new Date()
-      }
-    })
-    console.log('Updated existing user to SUPERUSER with new password:', updatedUser.email)
+    await db.update(users).set({
+      role: 'SUPERUSER',
+      password: hashedPassword,
+      emailVerified: now,
+    }).where(eq(users.email, email))
+    console.log('Updated existing user to SUPERUSER:', email)
   } else {
-    // Create new superuser
-    const newUser = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name: 'Admin',
-        role: UserRole.SUPERUSER,
-        emailVerified: new Date(),
-      }
+    await db.insert(users).values({
+      email,
+      password: hashedPassword,
+      name: 'Admin',
+      role: 'SUPERUSER',
+      emailVerified: now,
     })
-    console.log('Created new SUPERUSER:', newUser.email)
+    console.log('Created new SUPERUSER:', email)
   }
 }
 
-main()
-  .catch((e) => {
-    console.error('Error seeding superuser:', e)
-    process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
+main().catch((e) => {
+  console.error('Error seeding superuser:', e)
+  process.exit(1)
+})

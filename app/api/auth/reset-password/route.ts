@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma/client'
+import { db } from '@/lib/db'
+import { users, passwordResetTokens } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import { hashPassword } from '@/lib/auth/password'
 
 // GET - Validate reset token
@@ -15,10 +17,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Find the reset token
-    const resetToken = await prisma.passwordResetToken.findUnique({
-      where: { token },
-      include: { user: true },
-    })
+    const [resetToken] = await db
+      .select()
+      .from(passwordResetTokens)
+      .where(eq(passwordResetTokens.token, token))
+      .limit(1)
 
     if (!resetToken) {
       return NextResponse.json(
@@ -29,7 +32,9 @@ export async function GET(request: NextRequest) {
 
     // Check if token is expired
     if (resetToken.expiresAt < new Date()) {
-      await prisma.passwordResetToken.delete({ where: { id: resetToken.id } })
+      await db
+        .delete(passwordResetTokens)
+        .where(eq(passwordResetTokens.id, resetToken.id))
       return NextResponse.json(
         { valid: false, error: 'Token has expired' },
         { status: 400 }
@@ -67,10 +72,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Find the reset token
-    const resetToken = await prisma.passwordResetToken.findUnique({
-      where: { token },
-      include: { user: true },
-    })
+    const [resetToken] = await db
+      .select()
+      .from(passwordResetTokens)
+      .where(eq(passwordResetTokens.token, token))
+      .limit(1)
 
     if (!resetToken) {
       return NextResponse.json(
@@ -81,7 +87,9 @@ export async function POST(request: NextRequest) {
 
     // Check if token is expired
     if (resetToken.expiresAt < new Date()) {
-      await prisma.passwordResetToken.delete({ where: { id: resetToken.id } })
+      await db
+        .delete(passwordResetTokens)
+        .where(eq(passwordResetTokens.id, resetToken.id))
       return NextResponse.json(
         { error: 'Token has expired' },
         { status: 400 }
@@ -99,22 +107,23 @@ export async function POST(request: NextRequest) {
     // Hash the new password
     const hashedPassword = await hashPassword(password)
 
-    // Update user password and mark token as used
-    await prisma.$transaction([
-      prisma.user.update({
-        where: { id: resetToken.userId },
-        data: { password: hashedPassword },
-      }),
-      prisma.passwordResetToken.update({
-        where: { id: resetToken.id },
-        data: { used: true },
-      }),
-    ])
+    // Update user password and mark token as used in a transaction
+    await db.transaction(async (tx) => {
+      await tx
+        .update(users)
+        .set({ password: hashedPassword })
+        .where(eq(users.id, resetToken.userId))
+
+      await tx
+        .update(passwordResetTokens)
+        .set({ used: true })
+        .where(eq(passwordResetTokens.id, resetToken.id))
+    })
 
     // Delete all reset tokens for this user
-    await prisma.passwordResetToken.deleteMany({
-      where: { userId: resetToken.userId },
-    })
+    await db
+      .delete(passwordResetTokens)
+      .where(eq(passwordResetTokens.userId, resetToken.userId))
 
     return NextResponse.json(
       { message: 'Password reset successfully' },

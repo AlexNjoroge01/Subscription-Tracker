@@ -16,5 +16,7 @@ export const config = {
     '/categories/:path*',
     '/notifications/:path*',
     '/analytics/:path*',
+    '/optimize/:path*',
+    '/payments/:path*',
   ],
 }

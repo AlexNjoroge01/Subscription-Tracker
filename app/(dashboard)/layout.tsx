@@ -17,6 +17,8 @@ import {
   Bell,
   Crown,
   Shield,
+  TrendingDown,
+  Receipt,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { DashboardNavbar } from '@/components/dashboard-navbar'
@@ -60,10 +62,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const baseNavLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/categories', label: 'Categories', icon: FolderKanban },
-    { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard },    
+    { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
     { href: '/analytics', label: 'Analytics', icon: BarChart3 },
+    { href: '/optimize', label: 'Optimize', icon: TrendingDown },
     { href: '/notifications', label: 'Notifications', icon: Bell },
     { href: '/pricing', label: 'Upgrade', icon: Crown },
+    { href: '/payments', label: 'Payments', icon: Receipt },
     { href: '/settings', label: 'Settings', icon: Settings },
   ]
 

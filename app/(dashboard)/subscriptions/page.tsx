@@ -16,6 +16,11 @@ import {
   Pencil,
   Trash2,
   Search,
+  Download,
+  List,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 import { LogoPicker, getLogoUrl } from '@/components/logo-picker'
 import { getCurrencyOptions, DEFAULT_CURRENCY } from '@/lib/currencies'
@@ -47,8 +52,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import type { Subscription } from '@prisma/client'
-import type { Category } from '@prisma/client'
+import type { Subscription, Category } from '@/lib/db/schema'
 import { createSubscriptionSchema, updateSubscriptionSchema } from '@/schemas'
 import {
   DropdownMenu,
@@ -69,6 +73,13 @@ type SubscriptionWithCategory = Subscription & {
   category: Category | null
 }
 
+const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+]
+
 export default function SubscriptionsPage() {
   const [subscriptions, setSubscriptions] = useState<SubscriptionWithCategory[]>([])
   const [categories, setCategories] = useState<Category[]>([])
@@ -77,6 +88,11 @@ export default function SubscriptionsPage() {
   const [editing, setEditing] = useState<SubscriptionWithCategory | null>(null)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'overdue' | 'cancelled' | 'scheduled'>('all')
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
+  const [calendarDate, setCalendarDate] = useState<Date>(() => {
+    const now = new Date()
+    return new Date(now.getFullYear(), now.getMonth(), 1)
+  })
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -294,6 +310,85 @@ export default function SubscriptionsPage() {
     }
   }
 
+  // CSV Export
+  const exportToCSV = () => {
+    const headers = ['Name', 'Amount', 'Currency', 'Billing Cycle', 'Next Billing Date', 'Status', 'Category', 'Family Member', 'Notes']
+    const rows = filtered.map((s) => [
+      s.name,
+      s.amount,
+      s.currency,
+      s.billingCycle,
+      formatDate(s.nextBillingDate as unknown as Date),
+      s.status ?? '',
+      s.category?.name ?? '',
+      s.familyMember ?? '',
+      s.notes ?? '',
+    ])
+    const escape = (val: string | number) => {
+      const str = String(val)
+      return str.includes(',') || str.includes('"') || str.includes('\n')
+        ? `"${str.replace(/"/g, '""')}"`
+        : str
+    }
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map(escape).join(','))
+      .join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = 'subscriptions.csv'
+    anchor.click()
+    URL.revokeObjectURL(url)
+  }
+
+  // Calendar helpers
+  const calendarYear = calendarDate.getFullYear()
+  const calendarMonth = calendarDate.getMonth()
+
+  const prevMonth = () => setCalendarDate(new Date(calendarYear, calendarMonth - 1, 1))
+  const nextMonth = () => setCalendarDate(new Date(calendarYear, calendarMonth + 1, 1))
+
+  const calendarCells = useMemo(() => {
+    const firstDay = new Date(calendarYear, calendarMonth, 1).getDay()
+    const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate()
+    const cells: (number | null)[] = []
+    for (let i = 0; i < firstDay; i++) cells.push(null)
+    for (let d = 1; d <= daysInMonth; d++) cells.push(d)
+    while (cells.length % 7 !== 0) cells.push(null)
+    return cells
+  }, [calendarYear, calendarMonth])
+
+  const subscriptionsByDay = useMemo(() => {
+    const map: Record<number, SubscriptionWithCategory[]> = {}
+    for (const sub of filtered) {
+      const date = new Date(sub.nextBillingDate as unknown as string)
+      if (isNaN(date.getTime())) continue
+      if (date.getFullYear() === calendarYear && date.getMonth() === calendarMonth) {
+        const day = date.getDate()
+        if (!map[day]) map[day] = []
+        map[day].push(sub)
+      }
+    }
+    return map
+  }, [filtered, calendarYear, calendarMonth])
+
+  const statusDotColor = (status: string | null | undefined) => {
+    switch (status) {
+      case 'active': return 'bg-emerald-500'
+      case 'overdue': return 'bg-red-500'
+      case 'scheduled': return 'bg-amber-400'
+      case 'cancelled': return 'bg-slate-400'
+      default: return 'bg-slate-300'
+    }
+  }
+
+  const todayDay = new Date().getDate()
+  const todayMonth = new Date().getMonth()
+  const todayYear = new Date().getFullYear()
+  const isToday = (day: number) =>
+    day === todayDay && calendarMonth === todayMonth && calendarYear === todayYear
+
   return (
     <div className="min-h-screen bg-[#FAFAFA] px-6 py-10">
       <div className="max-w-6xl mx-auto space-y-8">
@@ -316,6 +411,15 @@ export default function SubscriptionsPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={exportToCSV}
+              disabled={filtered.length === 0}
+            >
+              <Download className="w-4 h-4" />
+              Export CSV
+            </Button>
             <Dialog>
               <DialogTrigger asChild>
                 <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700">
@@ -544,21 +648,44 @@ export default function SubscriptionsPage() {
         </header>
 
         <Card className="p-4 md:p-6 shadow-2xl shadow-slate-200/60 border-slate-100 bg-white space-y-4">
-          <Tabs
-            value={statusFilter}
-            onValueChange={(v) =>
-              setStatusFilter(v as typeof statusFilter)
-            }
-          >
-            <TabsList>
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="active">Active</TabsTrigger>
-              <TabsTrigger value="overdue">Overdue</TabsTrigger>
-              <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
-              <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
-            </TabsList>
-            <TabsContent value={statusFilter} />
-          </Tabs>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <Tabs
+              value={statusFilter}
+              onValueChange={(v) =>
+                setStatusFilter(v as typeof statusFilter)
+              }
+            >
+              <TabsList>
+                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="active">Active</TabsTrigger>
+                <TabsTrigger value="overdue">Overdue</TabsTrigger>
+                <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
+                <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
+              </TabsList>
+              <TabsContent value={statusFilter} />
+            </Tabs>
+            <div className="flex items-center gap-1 border border-slate-200 rounded-lg p-1 self-start sm:self-auto">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                className={`gap-1.5 h-7 px-2 ${viewMode === 'list' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900'}`}
+                onClick={() => setViewMode('list')}
+              >
+                <List className="w-3.5 h-3.5" />
+                <span className="text-xs">List</span>
+              </Button>
+              <Button
+                variant={viewMode === 'calendar' ? 'default' : 'ghost'}
+                size="sm"
+                className={`gap-1.5 h-7 px-2 ${viewMode === 'calendar' ? 'bg-slate-900 text-white hover:bg-slate-800' : 'text-slate-500 hover:text-slate-900'}`}
+                onClick={() => setViewMode('calendar')}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span className="text-xs">Calendar</span>
+              </Button>
+            </div>
+          </div>
+
           {isLoading ? (
             <div className="flex items-center justify-center py-10 gap-3 text-slate-500">
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -566,147 +693,233 @@ export default function SubscriptionsPage() {
                 Loading your subscriptions...
               </span>
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                <CalendarDays className="w-6 h-6 text-slate-400" />
+          ) : viewMode === 'list' ? (
+            filtered.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
+                  <CalendarDays className="w-6 h-6 text-slate-400" />
+                </div>
+                <h2 className="text-lg font-semibold text-slate-900">
+                  No subscriptions yet
+                </h2>
+                <p className="text-slate-500 text-sm max-w-sm">
+                  Start by logging your first recurring charge. We&apos;ll keep
+                  every renewal on your radar.
+                </p>
               </div>
-              <h2 className="text-lg font-semibold text-slate-900">
-                No subscriptions yet
-              </h2>
-              <p className="text-slate-500 text-sm max-w-sm">
-                Start by logging your first recurring charge. We&apos;ll keep
-                every renewal on your radar.
-              </p>
-            </div>
-          ) : (
-            <Table className="w-full">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Service</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Family</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Next Billing</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="w-12"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((sub) => {
-                  const d = daysUntil(sub.nextBillingDate as unknown as Date)
-                  const label =
-                    d === null
-                      ? null
-                      : d < 0
-                        ? `${Math.abs(d)} days overdue`
-                        : d === 0
-                          ? 'Due today'
-                          : `In ${d} days`
-                  const labelVariant =
-                    d === null
-                      ? 'outline'
-                      : d < 0
-                        ? 'destructive'
-                        : d <= 3
-                          ? 'secondary'
-                          : 'outline'
-                  return (
-                  <TableRow key={sub.id}>
-                    <TableCell className="flex items-center gap-3">
-                      {sub.logo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={getLogoUrl(sub.logo) || sub.logo}
-                          alt={sub.name}
-                          className="w-8 h-8 rounded-xl object-cover"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center text-xs font-bold">
-                          {sub.name.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                      <div>
-                        <p className="font-medium text-sm text-slate-900">
-                          {sub.name}
-                        </p>
-                        {sub.notes && (
-                          <p className="text-xs text-slate-400">{sub.notes}</p>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {sub.category ? (
-                        <Badge
-                          variant="outline"
-                          className="text-xs"
-                          style={{ borderColor: sub.category.color }}
-                        >
-                          {sub.category.name}
-                        </Badge>
-                      ) : (
-                        <span className="text-xs text-slate-400">Unassigned</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-700">
-                      {sub.familyMember || (
-                        <span className="text-slate-400 text-xs">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-sm font-semibold text-slate-900">
-                      {formatCurrency(sub.amount, sub.currency)}
-                    </TableCell>
-                    <TableCell className="text-sm text-slate-700">
-                      <div className="flex flex-col gap-1">
-                        <span>{formatDate(sub.nextBillingDate as unknown as Date)}</span>
-                        {label && (
-                          <Badge
-                            variant={labelVariant as any}
-                            className="w-fit text-[10px]"
-                          >
-                            {label}
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={statusVariant(sub.status)}
-                        className="text-xs capitalize"
-                      >
-                        {sub.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            className="text-slate-500 hover:text-slate-900"
-                          >
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openEdit(sub)}>
-                            <Pencil className="w-3 h-3" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            variant="destructive"
-                            onClick={() => handleDelete(sub)}
-                          >
-                            <Trash2 className="w-3 h-3" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+            ) : (
+              <Table className="w-full">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Service</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Family</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Next Billing</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="w-12"></TableHead>
                   </TableRow>
-                )})}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((sub) => {
+                    const d = daysUntil(sub.nextBillingDate as unknown as Date)
+                    const label =
+                      d === null
+                        ? null
+                        : d < 0
+                          ? `${Math.abs(d)} days overdue`
+                          : d === 0
+                            ? 'Due today'
+                            : `In ${d} days`
+                    const labelVariant =
+                      d === null
+                        ? 'outline'
+                        : d < 0
+                          ? 'destructive'
+                          : d <= 3
+                            ? 'secondary'
+                            : 'outline'
+                    return (
+                    <TableRow key={sub.id}>
+                      <TableCell className="flex items-center gap-3">
+                        {sub.logo ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={getLogoUrl(sub.logo) || sub.logo}
+                            alt={sub.name}
+                            className="w-8 h-8 rounded-xl object-cover"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center text-xs font-bold">
+                            {sub.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-medium text-sm text-slate-900">
+                            {sub.name}
+                          </p>
+                          {sub.notes && (
+                            <p className="text-xs text-slate-400">{sub.notes}</p>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {sub.category ? (
+                          <Badge
+                            variant="outline"
+                            className="text-xs"
+                            style={{ borderColor: sub.category.color }}
+                          >
+                            {sub.category.name}
+                          </Badge>
+                        ) : (
+                          <span className="text-xs text-slate-400">Unassigned</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm text-slate-700">
+                        {sub.familyMember || (
+                          <span className="text-slate-400 text-xs">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm font-semibold text-slate-900">
+                        {formatCurrency(sub.amount, sub.currency)}
+                      </TableCell>
+                      <TableCell className="text-sm text-slate-700">
+                        <div className="flex flex-col gap-1">
+                          <span>{formatDate(sub.nextBillingDate as unknown as Date)}</span>
+                          {label && (
+                            <Badge
+                              variant={labelVariant as any}
+                              className="w-fit text-[10px]"
+                            >
+                              {label}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={statusVariant(sub.status)}
+                          className="text-xs capitalize"
+                        >
+                          {sub.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              className="text-slate-500 hover:text-slate-900"
+                            >
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openEdit(sub)}>
+                              <Pencil className="w-3 h-3" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() => handleDelete(sub)}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  )})}
+                </TableBody>
+              </Table>
+            )
+          ) : (
+            /* Calendar View */
+            <div className="space-y-4">
+              {/* Calendar header: month navigation */}
+              <div className="flex items-center justify-between">
+                <Button variant="ghost" size="sm" onClick={prevMonth} className="gap-1 text-slate-600">
+                  <ChevronLeft className="w-4 h-4" />
+                  Prev
+                </Button>
+                <h2 className="text-base font-semibold text-slate-900">
+                  {MONTH_NAMES[calendarMonth]} {calendarYear}
+                </h2>
+                <Button variant="ghost" size="sm" onClick={nextMonth} className="gap-1 text-slate-600">
+                  Next
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Legend */}
+              <div className="flex items-center gap-4 flex-wrap text-xs text-slate-500">
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />Active</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" />Overdue</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block" />Scheduled</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block" />Cancelled</span>
+              </div>
+
+              {/* Day-of-week headers */}
+              <div className="grid grid-cols-7 gap-px">
+                {DAYS_OF_WEEK.map((day) => (
+                  <div key={day} className="text-center text-xs font-medium text-slate-400 py-2">
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendar grid: 6 rows x 7 cols */}
+              <div className="grid grid-cols-7 gap-px bg-slate-100 border border-slate-100 rounded-xl overflow-hidden">
+                {calendarCells.map((day, idx) => {
+                  const subs = day !== null ? (subscriptionsByDay[day] ?? []) : []
+                  const today = day !== null && isToday(day)
+                  return (
+                    <div
+                      key={idx}
+                      className={`bg-white min-h-[72px] p-1.5 flex flex-col ${day === null ? 'opacity-0 pointer-events-none' : ''}`}
+                    >
+                      {day !== null && (
+                        <>
+                          <span
+                            className={`text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full ${
+                              today
+                                ? 'bg-emerald-600 text-white'
+                                : 'text-slate-600'
+                            }`}
+                          >
+                            {day}
+                          </span>
+                          <div className="flex flex-col gap-0.5">
+                            {subs.slice(0, 3).map((sub) => (
+                              <div
+                                key={sub.id}
+                                className="flex items-center gap-1 group"
+                                title={`${sub.name} — ${formatCurrency(sub.amount, sub.currency)}`}
+                              >
+                                <span
+                                  className={`w-2 h-2 rounded-full flex-shrink-0 ${statusDotColor(sub.status)}`}
+                                />
+                                <span className="text-[10px] text-slate-600 truncate leading-tight">
+                                  {sub.name}
+                                </span>
+                              </div>
+                            ))}
+                            {subs.length > 3 && (
+                              <span className="text-[10px] text-slate-400">
+                                +{subs.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           )}
         </Card>
 
@@ -945,4 +1158,3 @@ export default function SubscriptionsPage() {
     </div>
   )
 }
-

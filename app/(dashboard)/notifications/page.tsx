@@ -11,8 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { getCurrencySymbol } from '@/lib/currencies'
-import type { Notification } from '@prisma/client'
-import type { Subscription } from '@prisma/client'
+import type { Notification, Subscription } from '@/lib/db/schema'
 
 type NotificationWithSub = Notification & {
   subscription: Pick<Subscription, 'id' | 'name' | 'amount' | 'currency' | 'nextBillingDate'> | null

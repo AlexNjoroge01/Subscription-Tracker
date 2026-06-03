@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma/client'
+import { and, eq, gte, sql } from 'drizzle-orm'
+import { db } from '@/lib/db'
+import { subscriptions } from '@/lib/db/schema'
 import { requireAuth } from '@/lib/api/auth-guard'
 import { error, success, unauthorized } from '@/lib/api/response'
 
@@ -13,25 +15,25 @@ export async function GET(request: NextRequest) {
     const since = new Date()
     since.setMonth(since.getMonth() - months)
 
-    const subs = await prisma.subscription.findMany({
-      where: {
-        userId: user.id,
-        createdAt: {
-          gte: since,
-        },
-      },
-    })
+    const rows = await db
+      .select({
+        month: sql<string>`to_char(${subscriptions.nextBillingDate}, 'YYYY-MM')`,
+        total: sql<number>`sum(${subscriptions.amount})`,
+      })
+      .from(subscriptions)
+      .where(
+        and(
+          eq(subscriptions.userId, user.id),
+          gte(subscriptions.nextBillingDate, since),
+        ),
+      )
+      .groupBy(sql`to_char(${subscriptions.nextBillingDate}, 'YYYY-MM')`)
+      .orderBy(sql`to_char(${subscriptions.nextBillingDate}, 'YYYY-MM')`)
 
-    const buckets = new Map<string, number>()
-    subs.forEach((s) => {
-      const d = new Date(s.nextBillingDate)
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-      buckets.set(key, (buckets.get(key) ?? 0) + s.amount)
-    })
-
-    const points = Array.from(buckets.entries())
-      .map(([month, total]) => ({ month, total }))
-      .sort((a, b) => (a.month > b.month ? 1 : -1))
+    const points = rows.map((r) => ({
+      month: r.month,
+      total: Number(r.total),
+    }))
 
     return success(points)
   } catch (err) {
@@ -42,4 +44,3 @@ export async function GET(request: NextRequest) {
     return error('Failed to load spending trend', 500)
   }
 }
-

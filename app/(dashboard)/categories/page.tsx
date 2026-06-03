@@ -35,7 +35,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { IconPicker, getIconUrl } from '@/components/icon-picker'
 import { DEFAULT_CURRENCY, getCurrencySymbol } from '@/lib/currencies'
-import type { Category } from '@prisma/client'
+import type { Category } from '@/lib/db/schema'
 import { createCategorySchema, updateCategorySchema } from '@/schemas'
 
 type CategoryWithCount = Category & {

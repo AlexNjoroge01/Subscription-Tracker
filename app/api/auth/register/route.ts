@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma/client'
+import { db } from '@/lib/db'
+import { users } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import { hashPassword } from '@/lib/auth/password'
 import { createUserSchema } from '@/schemas'
 import { error, success, validationError } from '@/lib/api/response'
-import { addDays } from 'date-fns'
+import { startTrial } from '@/lib/plan-limits'
 
 export async function POST(request: NextRequest) {
     try {
@@ -18,9 +20,11 @@ export async function POST(request: NextRequest) {
         const { name, email, password } = validation.data
 
         // Check if user already exists
-        const existingUser = await prisma.user.findUnique({
-            where: { email },
-        })
+        const [existingUser] = await db
+            .select({ id: users.id })
+            .from(users)
+            .where(eq(users.email, email))
+            .limit(1)
 
         if (existingUser) {
             return error('User with this email already exists', 400)
@@ -29,26 +33,24 @@ export async function POST(request: NextRequest) {
         // Hash password
         const hashedPassword = await hashPassword(password)
 
-        // Calculate trial end date (14 days from now)
-        const trialEndsAt = addDays(new Date(), 14)
-
-        // Create user with trial
-        const user = await prisma.user.create({
-            data: {
+        // Insert new user
+        const [user] = await db
+            .insert(users)
+            .values({
                 name,
                 email,
                 password: hashedPassword,
                 planId: 'starter-plan',
-                trialEndsAt,
-            },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                createdAt: true,
-                trialEndsAt: true,
-            },
-        })
+            })
+            .returning({
+                id: users.id,
+                name: users.name,
+                email: users.email,
+                createdAt: users.createdAt,
+            })
+
+        // Start 14-day trial
+        await startTrial(user.id, 14)
 
         return success({
             ...user,

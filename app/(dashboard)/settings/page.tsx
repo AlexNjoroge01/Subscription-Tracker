@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { Zap, Bell } from 'lucide-react'
+import { Zap, Bell, User } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import {Switch} from '@/components/ui/switch'
+import { Switch } from '@/components/ui/switch'
+import { Input } from '@/components/ui/input'
 
 interface NotificationPreferences {
   emailNotificationsEnabled: boolean
@@ -16,6 +17,12 @@ interface NotificationPreferences {
   notifyOverdue: boolean
   notifyBudgetWarning: boolean
   dailyDigestEnabled: boolean
+}
+
+interface ProfileData {
+  name: string
+  currency: string
+  monthlyBudget: string
 }
 
 export default function SettingsPage() {
@@ -31,8 +38,17 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
+  const [profile, setProfile] = useState<ProfileData>({
+    name: '',
+    currency: '',
+    monthlyBudget: '',
+  })
+  const [profileLoading, setProfileLoading] = useState(true)
+  const [profileSaving, setProfileSaving] = useState(false)
+
   useEffect(() => {
     fetchPreferences()
+    fetchProfile()
   }, [])
 
   const fetchPreferences = async () => {
@@ -48,6 +64,60 @@ export default function SettingsPage() {
       console.error(error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch('/api/settings/profile')
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile')
+      }
+      const data = await response.json()
+      setProfile({
+        name: data.name ?? '',
+        currency: data.currency ?? '',
+        monthlyBudget: data.monthlyBudget != null ? String(data.monthlyBudget) : '',
+      })
+    } catch (error) {
+      toast.error('Failed to load profile')
+      console.error(error)
+    } finally {
+      setProfileLoading(false)
+    }
+  }
+
+  const handleProfileSave = async () => {
+    setProfileSaving(true)
+    try {
+      const response = await fetch('/api/settings/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: profile.name,
+          currency: profile.currency,
+          monthlyBudget: profile.monthlyBudget !== '' ? Number(profile.monthlyBudget) : null,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save profile')
+      }
+
+      const data = await response.json()
+      setProfile({
+        name: data.name ?? '',
+        currency: data.currency ?? '',
+        monthlyBudget: data.monthlyBudget != null ? String(data.monthlyBudget) : '',
+      })
+      toast.success('Profile saved successfully')
+    } catch (error) {
+      toast.error('Failed to save profile')
+      console.error(error)
+    } finally {
+      setProfileSaving(false)
     }
   }
 
@@ -84,7 +154,7 @@ export default function SettingsPage() {
     }))
   }
 
-  if (loading) {
+  if (loading || profileLoading) {
     return (
       <div className="flex-1 bg-[#FAFAFA] min-h-screen flex items-center justify-center">
         <div className="text-emerald-600 animate-pulse font-black tracking-tight">
@@ -121,10 +191,84 @@ export default function SettingsPage() {
             Settings <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">Center</span>.
           </h1>
           <p className="text-slate-500 font-light text-lg">
-            Define how the system communicates risk & renewals.
+            Define how the system communicates risk &amp; renewals.
           </p>
         </section>
 
+        {/* Profile Card */}
+        <Card className="bg-white border-slate-100 shadow-sm rounded-[32px] p-8 space-y-10">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-emerald-50">
+              <User className="w-5 h-5 text-emerald-600" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black tracking-tight text-slate-900">
+                Profile
+              </h2>
+              <p className="text-sm text-slate-500 font-light mt-0.5">
+                Manage your personal details and budget preferences.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="profileName" className="text-sm font-semibold text-slate-700">
+                Name
+              </Label>
+              <Input
+                id="profileName"
+                type="text"
+                placeholder="Your full name"
+                value={profile.name}
+                onChange={(e) => setProfile((prev) => ({ ...prev, name: e.target.value }))}
+                className="rounded-xl border-slate-200 focus-visible:ring-emerald-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="profileCurrency" className="text-sm font-semibold text-slate-700">
+                Currency
+              </Label>
+              <Input
+                id="profileCurrency"
+                type="text"
+                placeholder="e.g. USD, EUR, GBP"
+                value={profile.currency}
+                onChange={(e) => setProfile((prev) => ({ ...prev, currency: e.target.value }))}
+                className="rounded-xl border-slate-200 focus-visible:ring-emerald-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="profileBudget" className="text-sm font-semibold text-slate-700">
+                Monthly Budget
+              </Label>
+              <Input
+                id="profileBudget"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="e.g. 500"
+                value={profile.monthlyBudget}
+                onChange={(e) => setProfile((prev) => ({ ...prev, monthlyBudget: e.target.value }))}
+                className="rounded-xl border-slate-200 focus-visible:ring-emerald-500"
+              />
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-slate-100">
+            <Button
+              onClick={handleProfileSave}
+              disabled={profileSaving}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-8 py-6 rounded-xl shadow-md shadow-emerald-900/10"
+            >
+              {profileSaving ? 'Saving...' : 'Save Profile'}
+            </Button>
+          </div>
+        </Card>
+
+        {/* Notification Card */}
         <Card className="bg-white border-slate-100 shadow-sm rounded-[32px] p-8 space-y-10">
           <div>
             <h2 className="text-2xl font-black tracking-tight text-slate-900">

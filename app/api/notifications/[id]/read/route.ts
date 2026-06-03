@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma/client'
+import { eq, and } from 'drizzle-orm'
+import { db } from '@/lib/db'
+import { notifications } from '@/lib/db/schema'
 import { requireAuth } from '@/lib/api/auth-guard'
 import { error, success, unauthorized, notFound } from '@/lib/api/response'
 
@@ -12,18 +14,21 @@ export async function PATCH(
     const user = await requireAuth()
     const { id } = await params
 
-    const existing = await prisma.notification.findFirst({
-      where: { id, userId: user.id },
-    })
+    const [existing] = await db
+      .select()
+      .from(notifications)
+      .where(and(eq(notifications.id, id), eq(notifications.userId, user.id)))
+      .limit(1)
 
     if (!existing) {
       return notFound('Notification not found')
     }
 
-    const updated = await prisma.notification.update({
-      where: { id },
-      data: { read: true },
-    })
+    const [updated] = await db
+      .update(notifications)
+      .set({ read: true })
+      .where(eq(notifications.id, id))
+      .returning()
 
     return success(updated)
   } catch (err) {
@@ -34,4 +39,3 @@ export async function PATCH(
     return error('Failed to update notification', 500)
   }
 }
-

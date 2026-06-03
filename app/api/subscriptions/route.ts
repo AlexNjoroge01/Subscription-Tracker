@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma/client'
+import { db } from '@/lib/db'
+import { subscriptions } from '@/lib/db/schema'
+import { eq, and, ilike, asc, or } from 'drizzle-orm'
 import { requireAuth } from '@/lib/api/auth-guard'
 import { createSubscriptionSchema } from '@/schemas'
 import { error, success, unauthorized, validationError } from '@/lib/api/response'
@@ -15,27 +17,29 @@ export async function GET(request: NextRequest) {
         const status = searchParams.get('status')
         const categoryId = searchParams.get('categoryId')
 
-        const subscriptions = await prisma.subscription.findMany({
-            where: {
-                userId: user.id,
-                ...(search && {
-                    name: {
-                        contains: search,
-                        mode: 'insensitive',
-                    },
-                }),
-                ...(status && { status }),
-                ...(categoryId && { categoryId }),
-            },
-            include: {
+        const filters = [eq(subscriptions.userId, user.id)]
+
+        if (search) {
+            filters.push(ilike(subscriptions.name, `%${search}%`))
+        }
+
+        if (status) {
+            filters.push(eq(subscriptions.status, status))
+        }
+
+        if (categoryId) {
+            filters.push(eq(subscriptions.categoryId, categoryId))
+        }
+
+        const result = await db.query.subscriptions.findMany({
+            where: and(...filters),
+            with: {
                 category: true,
             },
-            orderBy: {
-                nextBillingDate: 'asc',
-            },
+            orderBy: asc(subscriptions.nextBillingDate),
         })
 
-        return success(subscriptions)
+        return success(result)
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
             return unauthorized()
@@ -69,12 +73,18 @@ export async function POST(request: NextRequest) {
         }
 
         // Create subscription
-        const subscription = await prisma.subscription.create({
-            data: {
+        const [inserted] = await db
+            .insert(subscriptions)
+            .values({
                 ...data,
                 userId: user.id,
-            },
-            include: {
+            })
+            .returning()
+
+        // Fetch with category relation
+        const subscription = await db.query.subscriptions.findFirst({
+            where: eq(subscriptions.id, inserted.id),
+            with: {
                 category: true,
             },
         })

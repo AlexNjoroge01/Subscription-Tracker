@@ -16,8 +16,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { NotificationBell } from '@/components/notification-bell'
 import { getCurrencySymbol } from '@/lib/currencies'
-import type { Subscription } from '@prisma/client'
-import type { Category } from '@prisma/client'
+import type { Subscription, Category } from '@/lib/db/schema'
 
 type SubscriptionWithCategory = Subscription & {
   category: Category | null

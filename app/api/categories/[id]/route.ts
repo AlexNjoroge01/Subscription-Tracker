@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma/client'
+import { eq, and, ilike, ne, count } from 'drizzle-orm'
+import { db } from '@/lib/db'
+import { categories, subscriptions } from '@/lib/db/schema'
 import { requireAuth } from '@/lib/api/auth-guard'
 import { updateCategorySchema } from '@/schemas'
 import { error, success, unauthorized, notFound, validationError } from '@/lib/api/response'
@@ -13,23 +15,23 @@ export async function GET(
         const user = await requireAuth()
         const { id } = await params
 
-        const category = await prisma.category.findFirst({
-            where: {
-                id,
-                userId: user.id,
-            },
-            include: {
-                _count: {
-                    select: { subscriptions: true }
-                }
-            }
+        const category = await db.query.categories.findFirst({
+            where: and(
+                eq(categories.id, id),
+                eq(categories.userId, user.id)
+            ),
         })
 
         if (!category) {
             return notFound('Category not found')
         }
 
-        return success(category)
+        const [{ subscriptionCount }] = await db
+            .select({ subscriptionCount: count() })
+            .from(subscriptions)
+            .where(eq(subscriptions.categoryId, id))
+
+        return success({ ...category, _count: { subscriptions: subscriptionCount } })
     } catch (err) {
         if (err instanceof Error && err.message === 'Unauthorized') {
             return unauthorized()
@@ -50,11 +52,11 @@ export async function PATCH(
         const body = await request.json()
 
         // Check if category exists and belongs to user
-        const existing = await prisma.category.findFirst({
-            where: {
-                id,
-                userId: user.id,
-            },
+        const existing = await db.query.categories.findFirst({
+            where: and(
+                eq(categories.id, id),
+                eq(categories.userId, user.id)
+            ),
         })
 
         if (!existing) {
@@ -69,17 +71,14 @@ export async function PATCH(
 
         const data = validation.data
 
-        // If name is changing, check for duplicates
+        // If name is changing, check for duplicates (case-insensitive)
         if (data.name && data.name.toLowerCase() !== existing.name.toLowerCase()) {
-            const duplicate = await prisma.category.findFirst({
-                where: {
-                    userId: user.id,
-                    name: {
-                        equals: data.name,
-                        mode: 'insensitive'
-                    },
-                    id: { not: id }
-                }
+            const duplicate = await db.query.categories.findFirst({
+                where: and(
+                    eq(categories.userId, user.id),
+                    ilike(categories.name, data.name),
+                    ne(categories.id, id)
+                ),
             })
 
             if (duplicate) {
@@ -88,9 +87,14 @@ export async function PATCH(
         }
 
         // Update category
-        const category = await prisma.category.update({
-            where: { id },
-            data,
+        await db
+            .update(categories)
+            .set(data)
+            .where(eq(categories.id, id))
+
+        // Refetch updated category
+        const category = await db.query.categories.findFirst({
+            where: eq(categories.id, id),
         })
 
         return success(category)
@@ -113,16 +117,11 @@ export async function DELETE(
         const { id } = await params
 
         // Check if category exists and belongs to user
-        const existing = await prisma.category.findFirst({
-            where: {
-                id,
-                userId: user.id,
-            },
-            include: {
-                _count: {
-                    select: { subscriptions: true }
-                }
-            }
+        const existing = await db.query.categories.findFirst({
+            where: and(
+                eq(categories.id, id),
+                eq(categories.userId, user.id)
+            ),
         })
 
         if (!existing) {
@@ -130,14 +129,22 @@ export async function DELETE(
         }
 
         // Check if it has subscriptions
-        if (existing._count.subscriptions > 0) {
-            return error('Cannot delete category with associated subscriptions. Reassign them first.', 400)
+        const [{ subscriptionCount }] = await db
+            .select({ subscriptionCount: count() })
+            .from(subscriptions)
+            .where(eq(subscriptions.categoryId, id))
+
+        if (subscriptionCount > 0) {
+            return error(
+                'Cannot delete category with associated subscriptions. Reassign them first.',
+                400
+            )
         }
 
         // Delete category
-        await prisma.category.delete({
-            where: { id },
-        })
+        await db
+            .delete(categories)
+            .where(eq(categories.id, id))
 
         return success({ message: 'Category deleted successfully' })
     } catch (err) {

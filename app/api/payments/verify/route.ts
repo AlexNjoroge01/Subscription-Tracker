@@ -1,5 +1,7 @@
 import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma/client'
+import { db } from '@/lib/db'
+import { payments, paymentPlans, users } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import { success, error } from '@/lib/api/response'
 import { verifyPayment } from '@/lib/paystack/paystack'
 import { addDays } from 'date-fns'
@@ -15,71 +17,80 @@ export async function GET(request: NextRequest) {
       return error('Reference or payment ID is required', 400)
     }
 
-    let payment
+    // Fetch the payment row
+    let paymentRow: typeof payments.$inferSelect | undefined
 
     if (paymentId) {
-      payment = await prisma.payment.findUnique({
-        where: { id: paymentId },
-        include: { plan: true, user: true },
-      })
+      ;[paymentRow] = await db
+        .select()
+        .from(payments)
+        .where(eq(payments.id, paymentId))
+        .limit(1)
     } else if (reference) {
-      payment = await prisma.payment.findUnique({
-        where: { providerRef: reference },
-        include: { plan: true, user: true },
-      })
+      ;[paymentRow] = await db
+        .select()
+        .from(payments)
+        .where(eq(payments.providerRef, reference))
+        .limit(1)
     }
 
-    if (!payment) {
+    if (!paymentRow) {
       return error('Payment not found', 404)
     }
 
+    // Fetch the associated plan
+    const [plan] = await db
+      .select()
+      .from(paymentPlans)
+      .where(eq(paymentPlans.id, paymentRow.planId))
+      .limit(1)
+
     // If already completed, return the payment
-    if (payment.status === 'completed') {
+    if (paymentRow.status === 'completed') {
       return success({
         status: 'success',
         payment: {
-          id: payment.id,
-          amount: payment.amount,
-          currency: payment.currency,
-          status: payment.status,
-          plan: payment.plan,
-          paidAt: payment.paidAt,
+          id: paymentRow.id,
+          amount: paymentRow.amount,
+          currency: paymentRow.currency,
+          status: paymentRow.status,
+          plan: plan ?? null,
+          paidAt: paymentRow.paidAt,
         },
       })
     }
 
     // Verify with Paystack
-    if (!payment.providerRef) {
+    if (!paymentRow.providerRef) {
       return error('Payment has no provider reference', 400)
     }
 
-    const verificationResult = await verifyPayment(payment.providerRef)
+    const verificationResult = await verifyPayment(paymentRow.providerRef)
 
     if (
       verificationResult.status &&
       verificationResult.data.status === 'success'
     ) {
-      // Update payment status and upgrade user's plan
-      const [updatedPayment] = await prisma.$transaction([
-        prisma.payment.update({
-          where: { id: payment.id },
-          data: {
-            status: 'completed',
-            providerId: verificationResult.data.id.toString(),
-            paidAt: new Date(verificationResult.data.paid_at),
-          },
-          include: { plan: true },
-        }),
-        // Upgrade user's plan
-        prisma.user.update({
-          where: { id: payment.userId },
-          data: {
-            planId: payment.planId,
-            planEndsAt: addDays(new Date(), 30), // 30 days from now
-            trialEndsAt: null, // Clear trial since they've paid
-          },
-        }),
-      ])
+      // Update payment to completed
+      const [updatedPayment] = await db
+        .update(payments)
+        .set({
+          status: 'completed',
+          providerId: verificationResult.data.id.toString(),
+          paidAt: new Date(verificationResult.data.paid_at),
+        })
+        .where(eq(payments.id, paymentRow.id))
+        .returning()
+
+      // Upgrade user's plan
+      await db
+        .update(users)
+        .set({
+          planId: paymentRow.planId,
+          planEndsAt: addDays(new Date(), 30), // 30 days from now
+          trialEndsAt: null, // Clear trial since they've paid
+        })
+        .where(eq(users.id, paymentRow.userId))
 
       return success({
         status: 'success',
@@ -88,17 +99,17 @@ export async function GET(request: NextRequest) {
           amount: updatedPayment.amount,
           currency: updatedPayment.currency,
           status: updatedPayment.status,
-          plan: updatedPayment.plan,
+          plan: plan ?? null,
           paidAt: updatedPayment.paidAt,
         },
-        message: `Congratulations! You've been upgraded to the ${payment.plan.name} plan.`,
+        message: `Congratulations! You've been upgraded to the ${plan?.name ?? 'new'} plan.`,
       })
     } else if (verificationResult.data.status === 'failed') {
       // Update payment status to failed
-      await prisma.payment.update({
-        where: { id: payment.id },
-        data: { status: 'failed' },
-      })
+      await db
+        .update(payments)
+        .set({ status: 'failed' })
+        .where(eq(payments.id, paymentRow.id))
 
       return success({
         status: 'failed',

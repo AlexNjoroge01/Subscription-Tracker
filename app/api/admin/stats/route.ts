@@ -1,230 +1,214 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/options'
-import { prisma } from '@/lib/prisma/client'
-import { UserRole } from '@prisma/client'
+import { db } from '@/lib/db'
+import {
+  users,
+  subscriptions,
+  payments,
+  categories,
+  notifications,
+} from '@/lib/db/schema'
+import { count, sum, eq, gte, and, sql } from 'drizzle-orm'
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    
-    // Check if user is authenticated and is a superuser
-    if (!session?.user || session.user.role !== UserRole.SUPERUSER) {
+
+    if (!session?.user || session.user.role !== 'SUPERUSER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get total users count
-    const totalUsers = await prisma.user.count()
-    
-    // Get new users this month
+    // ── Users ──────────────────────────────────────────────────────────────
+
+    const [{ totalUsers }] = await db
+      .select({ totalUsers: count() })
+      .from(users)
+
     const startOfMonth = new Date()
     startOfMonth.setDate(1)
     startOfMonth.setHours(0, 0, 0, 0)
-    
-    const newUsersThisMonth = await prisma.user.count({
-      where: {
-        createdAt: {
-          gte: startOfMonth
-        }
-      }
-    })
 
-    // Get total subscriptions tracked
-    const totalSubscriptions = await prisma.subscription.count()
-    
-    // Get active subscriptions
-    const activeSubscriptions = await prisma.subscription.count({
-      where: {
-        status: 'active'
-      }
-    })
+    const [{ newUsersThisMonth }] = await db
+      .select({ newUsersThisMonth: count() })
+      .from(users)
+      .where(gte(users.createdAt, startOfMonth))
 
-    // Get total amount from all active subscriptions (monthly equivalent)
-    const subscriptions = await prisma.subscription.findMany({
-      where: {
-        status: 'active'
-      },
-      select: {
-        amount: true,
-        currency: true,
-        billingCycle: true,
-        customDays: true
-      }
-    })
+    // ── Subscriptions ──────────────────────────────────────────────────────
 
-    // Calculate monthly equivalent for each subscription
+    const [{ totalSubscriptions }] = await db
+      .select({ totalSubscriptions: count() })
+      .from(subscriptions)
+
+    const [{ activeSubscriptions }] = await db
+      .select({ activeSubscriptions: count() })
+      .from(subscriptions)
+      .where(eq(subscriptions.status, 'active'))
+
+    const [{ overdueSubscriptions }] = await db
+      .select({ overdueSubscriptions: count() })
+      .from(subscriptions)
+      .where(eq(subscriptions.status, 'overdue'))
+
+    // Monthly-equivalent amount calculation for active subscriptions
+    const activeSubRows = await db
+      .select({
+        amount: subscriptions.amount,
+        currency: subscriptions.currency,
+        billingCycle: subscriptions.billingCycle,
+        customDays: subscriptions.customDays,
+      })
+      .from(subscriptions)
+      .where(eq(subscriptions.status, 'active'))
+
     let totalMonthlyAmount = 0
     const currencyBreakdown: Record<string, number> = {}
-    
-    for (const sub of subscriptions) {
+
+    for (const sub of activeSubRows) {
       let monthlyAmount = sub.amount
-      
       if (sub.billingCycle === 'annual') {
         monthlyAmount = sub.amount / 12
       } else if (sub.billingCycle === 'custom' && sub.customDays) {
         monthlyAmount = (sub.amount / sub.customDays) * 30
       }
-      
       totalMonthlyAmount += monthlyAmount
-      
-      if (!currencyBreakdown[sub.currency]) {
-        currencyBreakdown[sub.currency] = 0
-      }
-      currencyBreakdown[sub.currency] += monthlyAmount
+      currencyBreakdown[sub.currency] = (currencyBreakdown[sub.currency] ?? 0) + monthlyAmount
     }
 
-    // Get total payments received
-    const completedPayments = await prisma.payment.findMany({
-      where: {
-        status: 'completed'
-      },
-      select: {
-        amount: true,
-        currency: true,
-        paidAt: true
-      }
-    })
+    // ── Payments ───────────────────────────────────────────────────────────
+
+    const completedPaymentRows = await db
+      .select({
+        amount: payments.amount,
+        currency: payments.currency,
+        paidAt: payments.paidAt,
+      })
+      .from(payments)
+      .where(eq(payments.status, 'completed'))
 
     let totalPaymentsReceived = 0
     const paymentsByCurrency: Record<string, number> = {}
     const paymentsByMonth: Record<string, number> = {}
-    
-    for (const payment of completedPayments) {
+
+    for (const payment of completedPaymentRows) {
       totalPaymentsReceived += payment.amount
-      
-      if (!paymentsByCurrency[payment.currency]) {
-        paymentsByCurrency[payment.currency] = 0
-      }
-      paymentsByCurrency[payment.currency] += payment.amount
-      
+      paymentsByCurrency[payment.currency] = (paymentsByCurrency[payment.currency] ?? 0) + payment.amount
       if (payment.paidAt) {
-        const monthKey = payment.paidAt.toISOString().slice(0, 7) // YYYY-MM
-        if (!paymentsByMonth[monthKey]) {
-          paymentsByMonth[monthKey] = 0
-        }
-        paymentsByMonth[monthKey] += payment.amount
+        const monthKey = payment.paidAt.toISOString().slice(0, 7)
+        paymentsByMonth[monthKey] = (paymentsByMonth[monthKey] ?? 0) + payment.amount
       }
     }
 
-    // Get payments this month
-    const paymentsThisMonth = await prisma.payment.aggregate({
-      where: {
-        status: 'completed',
-        paidAt: {
-          gte: startOfMonth
-        }
-      },
-      _sum: {
-        amount: true
-      }
-    })
+    const [paymentsThisMonthRow] = await db
+      .select({ total: sum(payments.amount) })
+      .from(payments)
+      .where(
+        and(
+          eq(payments.status, 'completed'),
+          gte(payments.paidAt, startOfMonth),
+        ),
+      )
 
-    // Get pending payments
-    const pendingPayments = await prisma.payment.count({
-      where: {
-        status: 'pending'
-      }
-    })
+    const [{ pendingPayments }] = await db
+      .select({ pendingPayments: count() })
+      .from(payments)
+      .where(eq(payments.status, 'pending'))
 
-    // Get plan distribution
-    const planDistribution = await prisma.user.groupBy({
-      by: ['planId'],
-      _count: {
-        id: true
-      }
-    })
+    // ── Plan distribution ──────────────────────────────────────────────────
 
-    // Get category stats
-    const totalCategories = await prisma.category.count()
-    
-    // Get notification stats
-    const totalNotifications = await prisma.notification.count()
-    const unreadNotifications = await prisma.notification.count({
-      where: {
-        read: false
-      }
-    })
+    const planDistribution = await db
+      .select({
+        planId: users.planId,
+        userCount: count(),
+      })
+      .from(users)
+      .groupBy(users.planId)
 
-    // Get overdue subscriptions
-    const overdueSubscriptions = await prisma.subscription.count({
-      where: {
-        status: 'overdue'
-      }
-    })
+    // ── Categories ─────────────────────────────────────────────────────────
 
-    // Get recent users (last 5)
-    const recentUsers = await prisma.user.findMany({
-      take: 5,
-      orderBy: {
-        createdAt: 'desc'
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        createdAt: true,
-        role: true,
-        planId: true
-      }
-    })
+    const [{ totalCategories }] = await db
+      .select({ totalCategories: count() })
+      .from(categories)
 
-    // Get recent payments (last 5)
-    const recentPayments = await prisma.payment.findMany({
-      take: 5,
-      orderBy: {
-        createdAt: 'desc'
-      },
-      select: {
+    // ── Notifications ──────────────────────────────────────────────────────
+
+    const [{ totalNotifications }] = await db
+      .select({ totalNotifications: count() })
+      .from(notifications)
+
+    const [{ unreadNotifications }] = await db
+      .select({ unreadNotifications: count() })
+      .from(notifications)
+      .where(eq(notifications.read, false))
+
+    // ── Recent users ───────────────────────────────────────────────────────
+
+    const recentUsers = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        createdAt: users.createdAt,
+        role: users.role,
+        planId: users.planId,
+      })
+      .from(users)
+      .orderBy(sql`${users.createdAt} desc`)
+      .limit(5)
+
+    // ── Recent payments (with user + plan via query API) ───────────────────
+
+    const recentPayments = await db.query.payments.findMany({
+      orderBy: (p, { desc }) => [desc(p.createdAt)],
+      limit: 5,
+      columns: {
         id: true,
         amount: true,
         currency: true,
         status: true,
         createdAt: true,
+      },
+      with: {
         user: {
-          select: {
-            name: true,
-            email: true
-          }
+          columns: { name: true, email: true },
         },
         plan: {
-          select: {
-            name: true
-          }
-        }
-      }
+          columns: { name: true },
+        },
+      },
     })
 
     return NextResponse.json({
       users: {
         total: totalUsers,
         newThisMonth: newUsersThisMonth,
-        recent: recentUsers
+        recent: recentUsers,
       },
       subscriptions: {
         total: totalSubscriptions,
         active: activeSubscriptions,
         overdue: overdueSubscriptions,
         monthlyAmount: totalMonthlyAmount,
-        currencyBreakdown
+        currencyBreakdown,
       },
       payments: {
         totalReceived: totalPaymentsReceived,
-        thisMonth: paymentsThisMonth._sum.amount || 0,
+        thisMonth: Number(paymentsThisMonthRow?.total ?? 0),
         pending: pendingPayments,
         byCurrency: paymentsByCurrency,
         byMonth: paymentsByMonth,
-        recent: recentPayments
+        recent: recentPayments,
       },
       plans: {
-        distribution: planDistribution
+        distribution: planDistribution,
       },
       categories: {
-        total: totalCategories
+        total: totalCategories,
       },
       notifications: {
         total: totalNotifications,
-        unread: unreadNotifications
-      }
+        unread: unreadNotifications,
+      },
     })
   } catch (error) {
     console.error('Error fetching admin stats:', error)

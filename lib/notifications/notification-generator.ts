@@ -1,4 +1,6 @@
-import { prisma } from '../prisma/client';
+import { db } from '../db';
+import { subscriptions, notifications, categories } from '../db/schema';
+import { eq, and, lte, gte, lt, inArray, like } from 'drizzle-orm';
 import {
     sendRenewalReminder,
     sendOverdueNotification,
@@ -35,20 +37,18 @@ export async function generateRenewalNotifications(): Promise<NotificationResult
         const todayStr = format(today, 'yyyy-MM-dd');
 
         // Get all active subscriptions with billing dates in the next 8 days
-        const subscriptions = await prisma.subscription.findMany({
-            where: {
-                status: 'active',
-                nextBillingDate: {
-                    lte: addDays(today, 8),
-                    gte: today,
-                },
-            },
-            include: {
+        const subs = await db.query.subscriptions.findMany({
+            where: and(
+                eq(subscriptions.status, 'active'),
+                lte(subscriptions.nextBillingDate, addDays(today, 8)),
+                gte(subscriptions.nextBillingDate, today),
+            ),
+            with: {
                 user: true,
             },
         });
 
-        for (const subscription of subscriptions) {
+        for (const subscription of subs) {
             const billingDate = startOfDay(subscription.nextBillingDate);
             const daysUntil = differenceInDays(billingDate, today);
 
@@ -58,22 +58,20 @@ export async function generateRenewalNotifications(): Promise<NotificationResult
             }
 
             const daysKey = String(daysUntil);
-            const notificationsSent = (subscription.notificationsSent as NotificationsSent) || {};
+            const notificationsSentData = (subscription.notificationsSent as NotificationsSent) || {};
 
             // Check if we've already sent this specific reminder
-            if (notificationsSent[daysKey]) {
+            if (notificationsSentData[daysKey]) {
                 continue; // Skip if this reminder was already sent
             }
 
             // Create in-app notification
             try {
-                await prisma.notification.create({
-                    data: {
-                        userId: subscription.userId,
-                        subscriptionId: subscription.id,
-                        type: 'renewal_reminder',
-                        message: `Your ${subscription.name} subscription renews in ${daysUntil} day${daysUntil > 1 ? 's' : ''} (${subscription.currency} ${subscription.amount.toFixed(2)})`,
-                    },
+                await db.insert(notifications).values({
+                    userId: subscription.userId,
+                    subscriptionId: subscription.id,
+                    type: 'renewal_reminder',
+                    message: `Your ${subscription.name} subscription renews in ${daysUntil} day${daysUntil > 1 ? 's' : ''} (${subscription.currency} ${subscription.amount.toFixed(2)})`,
                 });
                 result.notificationsCreated++;
             } catch (error) {
@@ -100,16 +98,14 @@ export async function generateRenewalNotifications(): Promise<NotificationResult
             // Update tracking - mark this reminder as sent (even if email failed, in-app was sent)
             try {
                 const updatedNotificationsSent: NotificationsSent = {
-                    ...notificationsSent,
+                    ...notificationsSentData,
                     [daysKey]: todayStr,
                 };
 
-                await prisma.subscription.update({
-                    where: { id: subscription.id },
-                    data: {
-                        notificationsSent: updatedNotificationsSent as Record<string, string>,
-                    },
-                });
+                await db
+                    .update(subscriptions)
+                    .set({ notificationsSent: updatedNotificationsSent as Record<string, string> })
+                    .where(eq(subscriptions.id, subscription.id));
             } catch (error) {
                 result.errors.push(`Failed to update tracking for subscription ${subscription.id}: ${error}`);
             }
@@ -135,14 +131,12 @@ export async function generateOverdueNotifications(): Promise<NotificationResult
         const today = startOfDay(new Date());
 
         // Get all subscriptions that are past their billing date and still active
-        const overdueSubscriptions = await prisma.subscription.findMany({
-            where: {
-                status: 'active',
-                nextBillingDate: {
-                    lt: today,
-                },
-            },
-            include: {
+        const overdueSubscriptions = await db.query.subscriptions.findMany({
+            where: and(
+                eq(subscriptions.status, 'active'),
+                lt(subscriptions.nextBillingDate, today),
+            ),
+            with: {
                 user: true,
             },
         });
@@ -152,24 +146,22 @@ export async function generateOverdueNotifications(): Promise<NotificationResult
 
             // Update subscription status to overdue
             try {
-                await prisma.subscription.update({
-                    where: { id: subscription.id },
-                    data: { status: 'overdue' },
-                });
+                await db
+                    .update(subscriptions)
+                    .set({ status: 'overdue' })
+                    .where(eq(subscriptions.id, subscription.id));
             } catch (error) {
                 result.errors.push(`Failed to update subscription ${subscription.id} status: ${error}`);
             }
 
             // Check if we've already sent an overdue notification today
-            const existingNotification = await prisma.notification.findFirst({
-                where: {
-                    userId: subscription.userId,
-                    subscriptionId: subscription.id,
-                    type: 'overdue',
-                    createdAt: {
-                        gte: today,
-                    },
-                },
+            const existingNotification = await db.query.notifications.findFirst({
+                where: and(
+                    eq(notifications.userId, subscription.userId),
+                    eq(notifications.subscriptionId, subscription.id),
+                    eq(notifications.type, 'overdue'),
+                    gte(notifications.createdAt, today),
+                ),
             });
 
             if (existingNotification) {
@@ -178,13 +170,11 @@ export async function generateOverdueNotifications(): Promise<NotificationResult
 
             // Create in-app notification
             try {
-                await prisma.notification.create({
-                    data: {
-                        userId: subscription.userId,
-                        subscriptionId: subscription.id,
-                        type: 'overdue',
-                        message: `Your ${subscription.name} subscription is ${daysOverdue} day${daysOverdue > 1 ? 's' : ''} overdue (${subscription.currency} ${subscription.amount.toFixed(2)})`,
-                    },
+                await db.insert(notifications).values({
+                    userId: subscription.userId,
+                    subscriptionId: subscription.id,
+                    type: 'overdue',
+                    message: `Your ${subscription.name} subscription is ${daysOverdue} day${daysOverdue > 1 ? 's' : ''} overdue (${subscription.currency} ${subscription.amount.toFixed(2)})`,
                 });
                 result.notificationsCreated++;
             } catch (error) {
@@ -226,25 +216,17 @@ export async function generateBudgetWarnings(): Promise<NotificationResult> {
         const today = startOfDay(new Date());
 
         // Get all categories with budget limits
-        const categories = await prisma.category.findMany({
-            where: {
-                budgetLimit: {
-                    not: null,
-                },
-            },
-            include: {
+        const cats = await db.query.categories.findMany({
+            where: (c, { isNotNull }) => isNotNull(c.budgetLimit),
+            with: {
                 user: true,
                 subscriptions: {
-                    where: {
-                        status: {
-                            in: ['active', 'overdue'],
-                        },
-                    },
+                    where: inArray(subscriptions.status, ['active', 'overdue']),
                 },
             },
         });
 
-        for (const category of categories) {
+        for (const category of cats) {
             if (!category.budgetLimit) continue;
             const budgetLimit = category.budgetLimit;
 
@@ -270,17 +252,13 @@ export async function generateBudgetWarnings(): Promise<NotificationResult> {
             }
 
             // Check if we've already sent a budget warning today
-            const existingNotification = await prisma.notification.findFirst({
-                where: {
-                    userId: category.userId,
-                    type: 'budget_warning',
-                    message: {
-                        contains: category.name,
-                    },
-                    createdAt: {
-                        gte: today,
-                    },
-                },
+            const existingNotification = await db.query.notifications.findFirst({
+                where: and(
+                    eq(notifications.userId, category.userId),
+                    eq(notifications.type, 'budget_warning'),
+                    like(notifications.message, `%${category.name}%`),
+                    gte(notifications.createdAt, today),
+                ),
             });
 
             if (existingNotification) {
@@ -289,12 +267,10 @@ export async function generateBudgetWarnings(): Promise<NotificationResult> {
 
             // Create in-app notification
             try {
-                await prisma.notification.create({
-                    data: {
-                        userId: category.userId,
-                        type: 'budget_warning',
-                        message: `Budget warning: ${category.name} category is at ${percentageUsed.toFixed(0)}% of your ${category.user.currency} ${budgetLimit.toFixed(2)} limit`,
-                    },
+                await db.insert(notifications).values({
+                    userId: category.userId,
+                    type: 'budget_warning',
+                    message: `Budget warning: ${category.name} category is at ${percentageUsed.toFixed(0)}% of your ${category.user.currency} ${budgetLimit.toFixed(2)} limit`,
                 });
                 result.notificationsCreated++;
             } catch (error) {
@@ -328,12 +304,10 @@ export async function generateBudgetWarnings(): Promise<NotificationResult> {
  */
 export async function resetNotificationTracking(subscriptionId: string): Promise<void> {
     try {
-        await prisma.subscription.update({
-            where: { id: subscriptionId },
-            data: {
-                notificationsSent: {},
-            },
-        });
+        await db
+            .update(subscriptions)
+            .set({ notificationsSent: {} })
+            .where(eq(subscriptions.id, subscriptionId));
     } catch (error) {
         console.error(`Failed to reset notification tracking for subscription ${subscriptionId}:`, error);
     }
