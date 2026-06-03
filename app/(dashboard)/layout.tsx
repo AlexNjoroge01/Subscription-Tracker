@@ -11,6 +11,7 @@ import {
   TrendingDown, Receipt,
 } from 'lucide-react'
 import { DashboardNavbar } from '@/components/dashboard-navbar'
+import { TrialBanner } from '@/components/trial-banner'
 
 const BASE_NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -155,6 +156,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {/* ── Main content ── */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         <DashboardNavbar />
+        <TrialBanner />
         <main className="flex-1 bg-[#070e08]">
           {children}
         </main>

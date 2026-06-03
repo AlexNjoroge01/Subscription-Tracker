@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { users, subscriptions, categories } from '@/lib/db/schema'
 import { requireAuth } from '@/lib/api/auth-guard'
 import { error, success, unauthorized } from '@/lib/api/response'
+import { hasFeatureAccess } from '@/lib/plan-limits'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -274,6 +275,10 @@ function detectExactDuplicates(subs: ActiveSub[]): Insight[] {
 export async function GET(_request: NextRequest) {
   try {
     const session = await requireAuth()
+
+    if (!(await hasFeatureAccess(session.id, 'optimize_insights'))) {
+      return error('Optimize insights require the Pro plan or higher. Upgrade to unlock.', 403)
+    }
 
     // Resolve full user row to get id + currency (needed for threshold context)
     const user = await db

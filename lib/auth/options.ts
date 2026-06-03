@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import { users } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { verifyPassword } from './password'
+import { startTrial } from '@/lib/plan-limits'
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -80,12 +81,15 @@ export const authOptions: NextAuthOptions = {
                 })
 
                 if (!existingUser) {
-                    await db.insert(users).values({
+                    const [newUser] = await db.insert(users).values({
                         email: user.email!,
                         name: user.name ?? null,
                         image: user.image ?? null,
                         emailVerified: new Date(),
-                    })
+                        planId: 'starter-plan',
+                    }).returning({ id: users.id })
+
+                    await startTrial(newUser.id, 14)
                 }
             }
             return true

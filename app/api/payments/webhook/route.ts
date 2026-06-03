@@ -1,17 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createHmac } from 'crypto'
 import { db } from '@/lib/db'
-import { payments } from '@/lib/db/schema'
+import { payments, users, paymentPlans } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
+import { addDays } from 'date-fns'
 
-// Paystack webhook handler
-// This endpoint receives webhook events from Paystack
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text()
 
-    // In production, you should verify the signature
-    // For now, we'll process the webhook without signature verification
-    // TODO: Implement signature verification for security
+    // Verify Paystack signature
+    const secret = process.env.PAYSTACK_SECRET_KEY
+    if (!secret) {
+      console.error('PAYSTACK_SECRET_KEY not configured')
+      return NextResponse.json({ status: 'error' }, { status: 500 })
+    }
+
+    const signature = request.headers.get('x-paystack-signature')
+    const expectedHash = createHmac('sha512', secret).update(body).digest('hex')
+
+    if (!signature || signature !== expectedHash) {
+      console.warn('Invalid Paystack webhook signature')
+      return NextResponse.json({ status: 'unauthorized' }, { status: 401 })
+    }
 
     const event = JSON.parse(body)
 
@@ -20,7 +31,6 @@ export async function POST(request: NextRequest) {
         const data = event.data
         const reference = data.reference
 
-        // Find the payment by reference
         const [payment] = await db
           .select()
           .from(payments)
@@ -32,8 +42,15 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ status: 'ignored' }, { status: 200 })
         }
 
-        // Update payment status if not already completed
         if (payment.status !== 'completed') {
+          const [plan] = await db
+            .select()
+            .from(paymentPlans)
+            .where(eq(paymentPlans.id, payment.planId))
+            .limit(1)
+
+          const planDurationDays = plan?.interval === 'annually' ? 365 : 30
+
           await db
             .update(payments)
             .set({
@@ -43,7 +60,17 @@ export async function POST(request: NextRequest) {
             })
             .where(eq(payments.id, payment.id))
 
-          console.log(`Payment ${payment.id} marked as completed`)
+          // Upgrade the user's plan
+          await db
+            .update(users)
+            .set({
+              planId: payment.planId,
+              planEndsAt: addDays(new Date(), planDurationDays),
+              trialEndsAt: null,
+            })
+            .where(eq(users.id, payment.userId))
+
+          console.log(`Payment ${payment.id} completed — user ${payment.userId} upgraded to ${payment.planId}`)
         }
 
         break

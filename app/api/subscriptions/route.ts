@@ -5,7 +5,7 @@ import { eq, and, ilike, asc, or } from 'drizzle-orm'
 import { requireAuth } from '@/lib/api/auth-guard'
 import { createSubscriptionSchema } from '@/schemas'
 import { error, success, unauthorized, validationError } from '@/lib/api/response'
-import { canAddSubscription } from '@/lib/plan-limits'
+import { canAddSubscription, hasFeatureAccess } from '@/lib/plan-limits'
 
 // GET /api/subscriptions - List all subscriptions for authenticated user
 export async function GET(request: NextRequest) {
@@ -63,13 +63,25 @@ export async function POST(request: NextRequest) {
 
         const data = validation.data
 
-        // Check plan limits
+        // Check subscription count limit
         const subscriptionCheck = await canAddSubscription(user.id)
         if (!subscriptionCheck.allowed) {
             return error(
                 `You've reached your subscription limit (${subscriptionCheck.max}). Upgrade your plan to add more.`,
                 403
             )
+        }
+
+        // Custom/weekly/quarterly billing cycles require Pro or higher
+        const advancedCycles = ['weekly', 'quarterly', 'custom']
+        if (advancedCycles.includes(data.billingCycle)) {
+            const canUseCustomCycles = await hasFeatureAccess(user.id, 'custom_billing_cycles')
+            if (!canUseCustomCycles) {
+                return error(
+                    `Custom billing cycles (weekly, quarterly, custom) require the Pro plan. Upgrade to unlock.`,
+                    403
+                )
+            }
         }
 
         // Create subscription

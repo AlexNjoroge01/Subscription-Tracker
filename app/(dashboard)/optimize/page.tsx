@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import Link from 'next/link'
 import {
   Sparkles,
   TrendingDown,
@@ -14,6 +15,8 @@ import {
   ArrowRightLeft,
   PieChart,
   Clock,
+  Lock,
+  Crown,
 } from 'lucide-react'
 
 import { Card } from '@/components/ui/card'
@@ -241,12 +244,40 @@ function SkeletonCard() {
   )
 }
 
+function UpgradeGate() {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 text-center gap-6">
+      <div className="w-20 h-20 rounded-2xl bg-amber-500/10 flex items-center justify-center">
+        <Lock className="w-10 h-10 text-amber-400" />
+      </div>
+      <div className="space-y-2 max-w-sm">
+        <p className="text-xl font-black text-white">Pro feature</p>
+        <p className="text-sm text-white/45 font-light">
+          Optimize insights — duplicate detection, high-cost alerts, and concentration warnings —
+          are available on the Pro plan and above.
+        </p>
+      </div>
+      <div className="flex flex-col items-center gap-3">
+        <Link
+          href="/pricing"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-semibold transition-colors"
+        >
+          <Crown className="w-4 h-4" />
+          Upgrade to Pro — $20/mo
+        </Link>
+        <p className="text-xs text-white/30">14-day free trial included</p>
+      </div>
+    </div>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function OptimizePage() {
   const [payload, setPayload] = useState<InsightsPayload | null>(null)
   const [dismissed, setDismissed] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
+  const [isLocked, setIsLocked] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -254,6 +285,10 @@ export default function OptimizePage() {
         setIsLoading(true)
         const res = await fetch('/api/analytics/insights')
         const json = await res.json()
+        if (res.status === 403) {
+          setIsLocked(true)
+          return
+        }
         if (!res.ok) throw new Error(json.error ?? 'Failed to load insights')
         setPayload(json.data ?? json)
       } catch (err) {
@@ -297,8 +332,15 @@ export default function OptimizePage() {
           </p>
         </section>
 
+        {/* Upgrade gate for Starter plan users */}
+        {isLocked && (
+          <Card className="bg-[#0d1b0f] border-white/[0.06] rounded-2xl shadow-sm">
+            <UpgradeGate />
+          </Card>
+        )}
+
         {/* Savings banner — only when high-severity items exist */}
-        {showBanner && (
+        {!isLocked && showBanner && (
           <SavingsBanner
             amount={totalSaving}
             currency={currency}
@@ -306,8 +348,8 @@ export default function OptimizePage() {
           />
         )}
 
-        {/* Insight feed */}
-        {isLoading ? (
+        {/* Insight feed — hidden when locked */}
+        {!isLocked && (isLoading ? (
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="h-4 bg-white/[0.04] rounded-lg w-40 animate-pulse" />
@@ -378,10 +420,10 @@ export default function OptimizePage() {
               </section>
             )}
           </>
-        )}
+        ))}
 
         {/* Summary footer when insights are present */}
-        {!isLoading && visible.length > 0 && (
+        {!isLocked && !isLoading && visible.length > 0 && (
           <Card className="bg-[#0d1b0f] border-white/[0.08] p-6 rounded-2xl shadow-sm">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">

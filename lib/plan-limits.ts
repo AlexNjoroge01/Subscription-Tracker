@@ -12,9 +12,14 @@ import { addDays } from 'date-fns'
 export const PLAN_LIMITS = {
   'starter-plan': {
     name: 'Starter',
-    maxSubscriptions: 20,
-    maxCategories: 5,
-    features: ['basic_analytics', 'email_reminders', 'budget_tracking', 'export_data'],
+    maxSubscriptions: 5,
+    maxCategories: 3,
+    features: [
+      'basic_analytics',
+      'email_reminders',
+      'budget_tracking',
+      'csv_export',
+    ],
   },
   'pro-plan': {
     name: 'Pro',
@@ -23,12 +28,14 @@ export const PLAN_LIMITS = {
     features: [
       'basic_analytics',
       'advanced_analytics',
+      'optimize_insights',
       'email_reminders',
       'in_app_notifications',
       'budget_tracking',
-      'export_data',
-      'priority_support',
+      'csv_export',
       'custom_billing_cycles',
+      'daily_digest',
+      'priority_support',
     ],
   },
   'premium-plan': {
@@ -38,16 +45,18 @@ export const PLAN_LIMITS = {
     features: [
       'basic_analytics',
       'advanced_analytics',
+      'optimize_insights',
       'email_reminders',
       'in_app_notifications',
       'budget_tracking',
-      'export_data',
-      'priority_support',
+      'csv_export',
       'custom_billing_cycles',
+      'daily_digest',
+      'priority_support',
       'family_sharing',
-      'api_access',
       'advanced_reports',
       'data_backup',
+      'api_access',
       'custom_integrations',
     ],
   },
@@ -187,8 +196,10 @@ export async function getUserPlanStatus(userId: string): Promise<{
   planName: string
   isOnTrial: boolean
   trialEndsAt: Date | null
+  trialDaysRemaining: number
   planEndsAt: Date | null
   isPlanActive: boolean
+  hasPaidPlan: boolean
 }> {
   const result = await db.query.users.findFirst({
     where: eq(users.id, userId),
@@ -200,16 +211,25 @@ export async function getUserPlanStatus(userId: string): Promise<{
   }
 
   const now = new Date()
+  // Trial is active only if trialEndsAt is in the future
   const isOnTrial = result.trialEndsAt ? now < result.trialEndsAt : false
-  const isPlanExpired = result.planEndsAt ? now > result.planEndsAt : false
-  const isPlanActive = isOnTrial || !isPlanExpired
+  // Paid plan is active only if planEndsAt exists and is in the future
+  const hasPaidPlan = result.planEndsAt ? now < result.planEndsAt : false
+  // Active if either trial is running OR a paid plan is valid
+  const isPlanActive = isOnTrial || hasPaidPlan
+
+  const trialDaysRemaining = result.trialEndsAt
+    ? Math.max(0, Math.ceil((result.trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+    : 0
 
   return {
     planId: result.planId || 'starter-plan',
     planName: result.plan?.name || 'Starter',
     isOnTrial,
     trialEndsAt: result.trialEndsAt,
+    trialDaysRemaining,
     planEndsAt: result.planEndsAt,
     isPlanActive,
+    hasPaidPlan,
   }
 }

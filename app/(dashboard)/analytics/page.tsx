@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { toast } from 'sonner'
 import {
   Area,
@@ -13,10 +14,9 @@ import {
   Cell,
   ResponsiveContainer,
 } from 'recharts'
-import { BarChart3, LineChart as LineChartIcon, PieChart as PieChartIcon } from 'lucide-react'
+import { BarChart3, LineChart as LineChartIcon, PieChart as PieChartIcon, Lock, Crown } from 'lucide-react'
 
 import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { DEFAULT_CURRENCY, getCurrencySymbol } from '@/lib/currencies'
 
 type Overview = {
@@ -41,11 +41,44 @@ type CategoryPoint = {
 
 const PIE_COLORS = ['#22c55e', '#0ea5e9', '#a855f7', '#f97316', '#e11d48', '#64748b']
 
+function UpgradeChartCard({ title, icon: Icon }: { title: string; icon: typeof Lock }) {
+  return (
+    <Card className="bg-[#0d1b0f] border-white/[0.06] p-6 rounded-[28px] shadow-sm flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-white/35">{title}</p>
+          <p className="text-sm text-white/45 font-light">Pro feature</p>
+        </div>
+        <div className="p-2 rounded-xl bg-amber-500/10">
+          <Icon className="w-4 h-4 text-amber-400" />
+        </div>
+      </div>
+      <div className="h-56 flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-white/[0.08]">
+        <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
+          <Lock className="w-5 h-5 text-amber-400" />
+        </div>
+        <div className="text-center space-y-1">
+          <p className="text-sm font-semibold text-white/70">Pro plan required</p>
+          <p className="text-xs text-white/35">Upgrade to unlock charts and advanced analytics</p>
+        </div>
+        <Link
+          href="/pricing"
+          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-white text-xs font-semibold transition-colors"
+        >
+          <Crown className="w-3.5 h-3.5" />
+          Upgrade to Pro
+        </Link>
+      </div>
+    </Card>
+  )
+}
+
 export default function AnalyticsPage() {
   const [overview, setOverview] = useState<Overview | null>(null)
   const [trend, setTrend] = useState<TrendPoint[]>([])
   const [categories, setCategories] = useState<CategoryPoint[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [chartsLocked, setChartsLocked] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -60,11 +93,16 @@ export default function AnalyticsPage() {
         const trJson = await trRes.json()
         const catJson = await catRes.json()
         if (!ovRes.ok) throw new Error(ovJson.error ?? 'Failed to load overview')
-        if (!trRes.ok) throw new Error(trJson.error ?? 'Failed to load trend')
-        if (!catRes.ok) throw new Error(catJson.error ?? 'Failed to load categories')
+        // 403 on charts = Starter plan — show upgrade prompt instead of erroring
+        if (trRes.status === 403 || catRes.status === 403) {
+          setChartsLocked(true)
+        } else {
+          if (!trRes.ok) throw new Error(trJson.error ?? 'Failed to load trend')
+          if (!catRes.ok) throw new Error(catJson.error ?? 'Failed to load categories')
+          setTrend(trJson.data ?? trJson)
+          setCategories(catJson.data ?? catJson)
+        }
         setOverview(ovJson.data ?? ovJson)
-        setTrend(trJson.data ?? trJson)
-        setCategories(catJson.data ?? catJson)
       } catch (error) {
         console.error(error)
         toast.error('Failed to load analytics')
@@ -143,150 +181,132 @@ export default function AnalyticsPage() {
           </Card>
         </section>
 
-        {/* Charts row – left white, right dark */}
+        {/* Charts row */}
         <section className="grid lg:grid-cols-2 gap-6">
-          {/* Spending trend */}
-          <Card className="bg-[#0d1b0f] border-white/[0.06] p-6 rounded-[28px] shadow-sm flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-white/35">
-                  Spending Trend
-                </p>
-                <p className="text-sm text-white/45 font-light">{timeframeLabel}</p>
-              </div>
-              <div className="p-2 rounded-xl bg-[#a3e635]/10">
-                <LineChartIcon className="w-4 h-4 text-[#a3e635]" />
-              </div>
-            </div>
-            <div className="h-56">
-              {isLoading ? (
-                <p className="text-xs text-white/35 italic">
-                  Loading spending trajectory…
-                </p>
-              ) : trend.length === 0 ? (
-                <p className="text-xs text-white/35 italic">
-                  Not enough data yet to plot a trend.
-                </p>
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={trend}>
-                    <defs>
-                      <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#22c55e" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="#22c55e" stopOpacity={0.1} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                    <XAxis
-                      dataKey="month"
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                      tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.4)' }}
-                    />
-                    <RechartsTooltip
-                      formatter={(value) =>
-                        `${getCurrencySymbol(overview?.currency || DEFAULT_CURRENCY)} ${Number(value).toLocaleString(undefined, {
-                          maximumFractionDigits: 0,
-                        })}`
-                      }
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="total"
-                      stroke="#22c55e"
-                      strokeWidth={2}
-                      fillOpacity={1}
-                      fill="url(#colorSpend)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </Card>
-
-          {/* Category breakdown – dark version */}
-          <Card className="bg-[#0d1b0f] border-white/[0.08] p-6 rounded-[28px] shadow-sm flex flex-col gap-4 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-white/55">
-                  Category Breakdown
-                </p>
-                <p className="text-sm text-white/35 font-light">
-                  Where your monthly burn is concentrated.
-                </p>
-              </div>
-              <div className="p-2 rounded-xl bg-sky-400/10">
-                <PieChartIcon className="w-4 h-4 text-sky-400" />
-              </div>
-            </div>
-            <div className="flex flex-col md:flex-row md:items-center gap-4">
-              <div className="h-56 w-full md:w-1/2">
-                {isLoading ? (
-                  <p className="text-xs text-white/35 italic">
-                    Loading allocation map…
-                  </p>
-                ) : categories.length === 0 ? (
-                  <p className="text-xs text-white/35 italic">
-                    No category data yet. Assign categories to your subscriptions.
-                  </p>
-                ) : (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={categories}
-                        dataKey="total"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={40}
-                        outerRadius={70}
-                        paddingAngle={3}
-                      >
-                        {categories.map((entry, index) => (
-                          <Cell
-                            key={entry.name}
-                            fill={PIE_COLORS[index % PIE_COLORS.length]}
-                          />
-                        ))}
-                      </Pie>
-                      <RechartsTooltip
-                        formatter={(value, _name, item) =>
-                          [
-                            `${getCurrencySymbol(overview?.currency || DEFAULT_CURRENCY)} ${Number(value).toLocaleString(undefined, {
-                              maximumFractionDigits: 0,
-                            })}`,
-                            item?.payload?.name,
-                          ]
-                        }
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                )}
-              </div>
-              <div className="flex-1 space-y-2">
-                {categories.slice(0, 5).map((cat, index) => (
-                  <div
-                    key={cat.name}
-                    className="flex items-center justify-between text-xs text-white/55"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{
-                          backgroundColor: PIE_COLORS[index % PIE_COLORS.length],
-                        }}
-                      />
-                      <span className="font-medium">{cat.name}</span>
-                    </div>
-                    <span className="font-semibold text-white">
-                      {getCurrencySymbol(overview?.currency || DEFAULT_CURRENCY)} {cat.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                    </span>
+          {chartsLocked ? (
+            <>
+              <UpgradeChartCard title="Spending Trend" icon={LineChartIcon} />
+              <UpgradeChartCard title="Category Breakdown" icon={PieChartIcon} />
+            </>
+          ) : (
+            <>
+              {/* Spending trend */}
+              <Card className="bg-[#0d1b0f] border-white/[0.06] p-6 rounded-[28px] shadow-sm flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/35">
+                      Spending Trend
+                    </p>
+                    <p className="text-sm text-white/45 font-light">{timeframeLabel}</p>
                   </div>
-                ))}
-              </div>
-            </div>
-          </Card>
+                  <div className="p-2 rounded-xl bg-[#a3e635]/10">
+                    <LineChartIcon className="w-4 h-4 text-[#a3e635]" />
+                  </div>
+                </div>
+                <div className="h-56">
+                  {isLoading ? (
+                    <p className="text-xs text-white/35 italic">Loading spending trajectory…</p>
+                  ) : trend.length === 0 ? (
+                    <p className="text-xs text-white/35 italic">Not enough data yet to plot a trend.</p>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={trend}>
+                        <defs>
+                          <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#22c55e" stopOpacity={0.8} />
+                            <stop offset="95%" stopColor="#22c55e" stopOpacity={0.1} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                        <XAxis
+                          dataKey="month"
+                          tickLine={false}
+                          axisLine={false}
+                          tickMargin={8}
+                          tick={{ fontSize: 11, fill: 'rgba(255,255,255,0.4)' }}
+                        />
+                        <RechartsTooltip
+                          formatter={(value) =>
+                            `${getCurrencySymbol(overview?.currency || DEFAULT_CURRENCY)} ${Number(value).toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                          }
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="total"
+                          stroke="#22c55e"
+                          strokeWidth={2}
+                          fillOpacity={1}
+                          fill="url(#colorSpend)"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+              </Card>
+
+              {/* Category breakdown */}
+              <Card className="bg-[#0d1b0f] border-white/[0.08] p-6 rounded-[28px] shadow-sm flex flex-col gap-4 text-white">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/55">
+                      Category Breakdown
+                    </p>
+                    <p className="text-sm text-white/35 font-light">Where your monthly burn is concentrated.</p>
+                  </div>
+                  <div className="p-2 rounded-xl bg-sky-400/10">
+                    <PieChartIcon className="w-4 h-4 text-sky-400" />
+                  </div>
+                </div>
+                <div className="flex flex-col md:flex-row md:items-center gap-4">
+                  <div className="h-56 w-full md:w-1/2">
+                    {isLoading ? (
+                      <p className="text-xs text-white/35 italic">Loading allocation map…</p>
+                    ) : categories.length === 0 ? (
+                      <p className="text-xs text-white/35 italic">No category data yet. Assign categories to your subscriptions.</p>
+                    ) : (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={categories}
+                            dataKey="total"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={40}
+                            outerRadius={70}
+                            paddingAngle={3}
+                          >
+                            {categories.map((entry, index) => (
+                              <Cell key={entry.name} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <RechartsTooltip
+                            formatter={(value, _name, item) => [
+                              `${getCurrencySymbol(overview?.currency || DEFAULT_CURRENCY)} ${Number(value).toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+                              item?.payload?.name,
+                            ]}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    {categories.slice(0, 5).map((cat, index) => (
+                      <div key={cat.name} className="flex items-center justify-between text-xs text-white/55">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[index % PIE_COLORS.length] }} />
+                          <span className="font-medium">{cat.name}</span>
+                        </div>
+                        <span className="font-semibold text-white">
+                          {getCurrencySymbol(overview?.currency || DEFAULT_CURRENCY)} {cat.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            </>
+          )}
         </section>
 
         {/* Quick Insights – alternating */}

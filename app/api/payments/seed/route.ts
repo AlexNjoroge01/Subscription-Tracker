@@ -3,83 +3,78 @@ import { db } from '@/lib/db'
 import { paymentPlans } from '@/lib/db/schema'
 import { success, error } from '@/lib/api/response'
 
-// POST /api/payments/seed - Seed default payment plans (admin only in production)
-export async function POST(request: NextRequest) {
+// POST /api/payments/seed — seed the three default payment plans
+export async function POST(_request: NextRequest) {
   try {
-    console.log('Seeding payment plans...')
-
-    // Delete existing plans
+    // Delete existing plans and re-insert fresh
     await db.delete(paymentPlans)
 
-    // Insert all plans in one round-trip and return inserted rows
     const createdPlans = await db
       .insert(paymentPlans)
       .values([
         {
           id: 'starter-plan',
           name: 'Starter',
-          price: 9, // $9/month USD
+          price: 9,
           currency: 'USD',
           interval: 'monthly',
           features: [
-            '14-day free trial',
-            'Up to 20 subscriptions',
-            'Basic analytics',
-            'Email reminders',
-            '5 categories',
+            'Up to 5 subscriptions',
+            'Up to 3 categories',
+            'Core subscription tracking',
             'Budget tracking',
-            'Export data',
+            'Basic analytics overview',
+            'Email renewal reminders (7, 3, 1 day)',
+            'CSV export',
+            'Calendar view',
           ],
           isActive: true,
         },
         {
           id: 'pro-plan',
           name: 'Pro',
-          price: 19, // $19/month USD
+          price: 20,
           currency: 'USD',
           interval: 'monthly',
           features: [
-            '14-day free trial',
             'Unlimited subscriptions',
-            'Advanced analytics',
-            'Email & in-app notifications',
             'Unlimited categories',
-            'Budget tracking',
-            'Export data',
+            'Everything in Starter',
+            'Spending trend charts',
+            'Category breakdown chart',
+            'Optimize insights (duplicate & cost detection)',
+            'In-app notifications',
+            'Custom billing cycles (weekly, quarterly, custom)',
+            'Daily digest email',
             'Priority support',
-            'Custom billing cycles',
           ],
           isActive: true,
         },
         {
           id: 'premium-plan',
           name: 'Premium',
-          price: 39, // $39/month USD
+          price: 35,
           currency: 'USD',
           interval: 'monthly',
           features: [
-            '14-day free trial',
+            'Unlimited subscriptions',
+            'Unlimited categories',
             'Everything in Pro',
-            'Family sharing (up to 5 members)',
+            'Family member tracking (up to 5)',
+            'Advanced reports & data backup',
             'API access',
-            'Advanced reports',
-            'Data backup',
+            'Custom integrations',
             '24/7 priority support',
             'Early access to new features',
-            'Custom integrations',
-            'Dedicated account manager',
           ],
           isActive: true,
         },
       ])
       .returning()
 
-    const [starterPlan, proPlan, premiumPlan] = createdPlans
-    console.log('Created plans:', { starterPlan, proPlan, premiumPlan })
-
     return success({
       message: 'Payment plans seeded successfully',
-      plans: { starterPlan, proPlan, premiumPlan },
+      plans: createdPlans,
     })
   } catch (err) {
     console.error('Seed payment plans error:', err)

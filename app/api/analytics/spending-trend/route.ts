@@ -4,11 +4,16 @@ import { db } from '@/lib/db'
 import { subscriptions } from '@/lib/db/schema'
 import { requireAuth } from '@/lib/api/auth-guard'
 import { error, success, unauthorized } from '@/lib/api/response'
+import { hasFeatureAccess } from '@/lib/plan-limits'
 
 // GET /api/analytics/spending-trend?months=6
 export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth()
+
+    if (!(await hasFeatureAccess(user.id, 'advanced_analytics'))) {
+      return error('Spending trend charts require the Pro plan or higher. Upgrade to unlock.', 403)
+    }
     const { searchParams } = new URL(request.url)
     const months = Number(searchParams.get('months') ?? '6')
 

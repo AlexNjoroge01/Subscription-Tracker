@@ -82,12 +82,13 @@ export async function GET(request: NextRequest) {
         .where(eq(payments.id, paymentRow.id))
         .returning()
 
-      // Upgrade user's plan
+      // Upgrade user's plan — duration based on billing interval
+      const planDurationDays = plan?.interval === 'annually' ? 365 : 30
       await db
         .update(users)
         .set({
           planId: paymentRow.planId,
-          planEndsAt: addDays(new Date(), 30), // 30 days from now
+          planEndsAt: addDays(new Date(), planDurationDays),
           trialEndsAt: null, // Clear trial since they've paid
         })
         .where(eq(users.id, paymentRow.userId))
